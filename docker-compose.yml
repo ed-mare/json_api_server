@@ -1,0 +1,10 @@
+# docker-compose run --rm gem
+version: '2'
+services:
+  gem:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/home/gems/mygem
+    entrypoint: /bin/bash

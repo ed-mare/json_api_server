@@ -1,0 +1,35 @@
+# inherit_from: .rubocop_todo.yml
+AllCops:
+  Exclude:
+    - 'spec/test_app/*'
+Metrics/LineLength:
+  Max: 150
+  Exclude:
+    - 'spec/**/*'
+Lint/DuplicatedKey:
+  Exclude:
+    - 'spec/controller/filter_spec.rb'
+Metrics/BlockLength:
+  CountComments: false
+  Exclude:
+    - 'simple_json_api.gemspec'
+    - 'spec/**/*'
+Lint/UselessComparison:
+  Exclude:
+    - 'spec/simple_json_api/attributes_builder_spec.rb'
+    - 'spec/simple_json_api/relationships_builder_spec.rb'
+Style/Documentation:
+  Exclude:
+    - 'spec/**/*'
+Metrics/CyclomaticComplexity:
+  Max: 9
+Metrics/AbcSize:
+  Max: 25
+Style/GuardClause:
+  Exclude:
+    - 'lib/simple_json_api/filter_builders.rb'
+    - 'lib/simple_json_api/pagination.rb'
+    - 'lib/simple_json_api/relationships_builder.rb'
+    - 'lib/simple_json_api/validation_errors.rb'
+Metrics/MethodLength:
+  Max: 20

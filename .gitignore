@@ -1,0 +1,14 @@
+/.bundle/
+/.yardoc
+/Gemfile.lock
+/_yardoc/
+/coverage/
+/doc/
+/pkg/
+/spec/reports/
+/tmp/
+/spec/test_app/log/*
+/spec/test_app/tmp/*
+.tags*
+*.gem
+erl_crash.dump

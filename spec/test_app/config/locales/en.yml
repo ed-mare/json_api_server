@@ -1,0 +1,8 @@
+# Example of overriding variables in SimpleJsonApi.
+
+en:
+  hello: "Hello world"
+  simple_json_api:
+    controller:
+      locales:
+        name: 'sandwich'

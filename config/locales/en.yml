@@ -1,0 +1,29 @@
+en:
+  simple_json_api:
+    variables:
+      defaults:
+        name: 'resource'
+    render_400:
+      title: 'Bad Request'
+      detail: 'Unknown request keyword.'    
+    render_401:
+      title: 'Unauthorized'
+      detail: 'Authentication failed.'
+    render_403:
+      title: 'Forbidden'
+      detail: 'Unauthorized to access this resource or perform this action.'
+    render_404:
+      title: 'Not Found'
+      detail: "This %{name} does not exist."
+    render_409:
+      title: 'Conflict'
+      detail: "This %{name} already exists."
+    render_500:
+      title: 'Internal Server Error'
+      detail: 'The server encountered an unexpected error.'
+    render_503:
+      title: 'Service Unavailable'
+      detail: 'The service is unavailable. It may be under maintenance or preparing for maintenance.'
+    render_unknown_format:
+      title: 'Unknown Format'
+      detail: "Format %{name} is not supported for this endpoint."
