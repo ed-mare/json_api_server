@@ -61,10 +61,10 @@ module SimpleJsonApi # :nodoc:
 
       # Render 400 json and status.
       def render_400(exception = nil)
-        message = (exception && exception.message) || t('simple_json_api.render_400.detail')
+        message = (exception && exception.message) || I18n.t('simple_json_api.render_400.detail')
         errors = SimpleJsonApi.errors(
           status: 400,
-          title: t('simple_json_api.render_400.title'),
+          title: I18n.t('simple_json_api.render_400.title'),
           detail: message
         )
         render json: errors.to_json, status: 400
@@ -74,8 +74,8 @@ module SimpleJsonApi # :nodoc:
       def render_401
         errors = SimpleJsonApi.errors(
           status: 401,
-          title:  t('simple_json_api.render_401.title'),
-          detail: t('simple_json_api.render_401.detail')
+          title:  I18n.t('simple_json_api.render_401.title'),
+          detail: I18n.t('simple_json_api.render_401.detail')
         )
         render json: errors.to_json, status: 401
       end
@@ -84,8 +84,8 @@ module SimpleJsonApi # :nodoc:
       def render_403
         errors = SimpleJsonApi.errors(
           status: 403,
-          title: t('simple_json_api.render_403.title'),
-          detail: t('simple_json_api.render_403.detail')
+          title: I18n.t('simple_json_api.render_403.title'),
+          detail: I18n.t('simple_json_api.render_403.detail')
         )
         render json: errors.to_json, status: 403
       end
@@ -94,8 +94,8 @@ module SimpleJsonApi # :nodoc:
       def render_404(_exception = nil)
         errors = SimpleJsonApi.errors(
           status: 404,
-          title: t('simple_json_api.render_404.title'),
-          detail: t('simple_json_api.render_404.detail', name: _i18n_name)
+          title: I18n.t('simple_json_api.render_404.title'),
+          detail: I18n.t('simple_json_api.render_404.detail', name: _i18n_name)
         )
         render json: errors.to_json, status: 404
       end
@@ -104,8 +104,8 @@ module SimpleJsonApi # :nodoc:
       def render_409(_exception = nil)
         errors = SimpleJsonApi.errors(
           status: 409,
-          title: t('simple_json_api.render_409.title'),
-          detail: t('simple_json_api.render_409.detail', name: _i18n_name)
+          title: I18n.t('simple_json_api.render_409.title'),
+          detail: I18n.t('simple_json_api.render_409.detail', name: _i18n_name)
         )
         render json: errors.to_json, status: 409
       end
@@ -123,8 +123,8 @@ module SimpleJsonApi # :nodoc:
 
         errors = SimpleJsonApi.errors(
           status: 500,
-          title: t('simple_json_api.render_500.title'),
-          detail: t('simple_json_api.render_500.detail')
+          title: I18n.t('simple_json_api.render_500.title'),
+          detail: I18n.t('simple_json_api.render_500.detail')
         )
         render json: errors.to_json, status: 500
       end
@@ -134,8 +134,8 @@ module SimpleJsonApi # :nodoc:
         format = sanitize(params[:format]) || ''
         errors = SimpleJsonApi.errors(
           status: 406,
-          title: t('simple_json_api.render_unknown_format.title'),
-          detail: t('simple_json_api.render_unknown_format.detail', name: format)
+          title: I18n.t('simple_json_api.render_unknown_format.title'),
+          detail: I18n.t('simple_json_api.render_unknown_format.detail', name: format)
         )
         render json: errors.to_json, status: 406
       end
@@ -144,8 +144,8 @@ module SimpleJsonApi # :nodoc:
       def render_503(message = nil)
         errors = SimpleJsonApi.errors(
           status: 500,
-          title: t('simple_json_api.render_503.title'),
-          detail: message || t('simple_json_api.render_503.detail')
+          title: I18n.t('simple_json_api.render_503.title'),
+          detail: message || I18n.t('simple_json_api.render_503.detail')
         )
         render json: errors.to_json, status: 503
       end
@@ -157,9 +157,9 @@ module SimpleJsonApi # :nodoc:
       end
 
       def _i18n_name
-        t("simple_json_api.controller.#{controller_name}.name", raise: true)
+        I18n.t("simple_json_api.controller.#{controller_name}.name", raise: true)
       rescue
-        t('simple_json_api.variables.defaults.name')
+        I18n.t('simple_json_api.variables.defaults.name')
       end
     end
   end
