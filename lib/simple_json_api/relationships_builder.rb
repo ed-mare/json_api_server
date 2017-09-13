@@ -86,7 +86,7 @@ module SimpleJsonApi # :nodoc:
     # #relate, #relate_if, #relate_each and #include (with <tt>:relate</tt> option).
     def relationships
       @relationships.each do |k, v|
-        if v.respond_to?(:uniq)
+        if v.respond_to?(:uniq!)
           v.uniq!
           @relationships[k] = v.first if v.length == 1
         end
