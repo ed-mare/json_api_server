@@ -34,11 +34,16 @@ class TopicSerializer < SimpleJsonApi::ResourceSerializer
 
   def relationships
     @relationships ||= begin
-      relationships_builder
-        .relate('publisher', publisher_serializer(@object.publisher))
-        .relate_each('comments', @object.comments) { |c| comment_serializer(c) }
-        .include_each('comments.includes', @object.comments,
-                      type: 'comments', relate: { include: [:relationship_data] }) { |c| comment_serializer(c) }
+      if relationship?('publisher')
+        rb.relate('publisher', publisher_serializer(@object.publisher))
+      end
+      if relationship?('comments')
+        rb.relate_each('comments', @object.comments) { |c| comment_serializer(c) }
+      elsif relationship?('comments.includes')
+        rb.include_each('comments.includes', @object.comments, type: 'comments',
+                                                               relate: { include: [:relationship_data] }) { |c| comment_serializer(c) }
+      end
+      rb
     end
   end
 

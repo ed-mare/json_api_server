@@ -256,17 +256,22 @@ class TopicSerializer < SimpleJsonApi::ResourceSerializer
 
   # Example: provide different ways of accessing the same relationship data:
   #
-  # 1) 'comments' puts all data in the relationship. User doesn't have to pick
-  # through 'included' section; document can be bigger (duplication of data).
+  # 1) 'comments' puts all data in the relationship (easier to walk the tree).
   # 2) 'comments.includes' puts data in the included section and relationship
   # links to it.
   def relationships
     @relationships ||= begin
-      relationships_builder
-        .relate('publisher', publisher_serializer(@object.publisher))
-        .relate_each('comments', @object.comments) { |c| comment_serializer(c) }
-        .include_each('comments.includes', @object.comments, type: 'comments',
+      if relationship?('publisher')
+        relationships_builder.relate('publisher', publisher_serializer(@object.publisher))
+      end
+      if relationship?('comments')
+        relationships_builder.relate_each('comments', @object.comments) { |c| comment_serializer(c) }
+      elsif relationship?('comments.includes')
+        relationships_builder.include_each('comments.includes', @object.comments, type: 'comments',
             relate: {include: [:relationship_data]}) { |c| comment_serializer(c) }
+      end
+
+      relationships_builder
     end
   end
 
@@ -352,6 +357,7 @@ rdoc --main 'README.md' --exclude 'spec' --exclude 'bin' --exclude 'Gemfile' --e
 ## Todo
 
 - Test against multiple rubies and rails.
+- Clean up tests, esp. as_json which are brittle.
 - Test against Postgres.
 - Test examples with complex relationships.
 - Support Mongoid.

@@ -76,51 +76,22 @@ describe SimpleJsonApi::RelationshipsBuilder do
   let(:author_serializer) { PeopleSerializer.new(id: 6, first_name: 'John', last_name: 'Steinbeck') }
 
   describe '#initialize' do
-    let(:with_includes) { SimpleJsonApi::RelationshipsBuilder.new(%w[a b]) }
-    let(:without_includes) { SimpleJsonApi::RelationshipsBuilder.new }
-    let(:with_bad_includes) { SimpleJsonApi::RelationshipsBuilder.new('foo') }
+    let(:rb) { SimpleJsonApi::RelationshipsBuilder.new }
 
     it 'sets @relationships to empty hash' do
-      expect(with_includes.instance_variable_get(:@relationships)).to eq({})
+      expect(rb.instance_variable_get(:@relationships)).to eq({})
     end
 
     it 'sets @included to empty array' do
-      expect(with_includes.instance_variable_get(:@included)).to eq([])
-    end
-
-    it 'sets @includes to empty array if non-array passed in' do
-      expect(without_includes.instance_variable_get(:@includes)).to eq([])
-      expect(with_bad_includes.instance_variable_get(:@includes)).to eq([])
-    end
-
-    it 'sets @includes to array if array passed in' do
-      expect(with_includes.instance_variable_get(:@includes)).to eq(%w[a b])
-    end
-  end
-
-  describe '#relationship?' do
-    let(:builder) { SimpleJsonApi::RelationshipsBuilder.new(%w[a b]) }
-
-    it 'is true when relationship is in @includes' do
-      expect(builder.send(:relationship?, 'a')).to eq(true)
-      expect(builder.send(:relationship?, 'b')).to eq(true)
-    end
-
-    it 'is true when symbol is used' do
-      expect(builder.send(:relationship?, :a)).to eq(true)
-      expect(builder.send(:relationship?, :b)).to eq(true)
-    end
-
-    it 'is false when not in includes' do
-      expect(builder.send(:relationship?, 'idontexist')).to eq(false)
+      expect(rb.instance_variable_get(:@included)).to eq([])
     end
   end
 
   describe '#relate' do
-    it 'merges relationships into a hash if relationship is requested' do
+    it 'merges relationships into a hash' do
       author_serializer.as_json_options = { include: [:data] }
 
-      r = SimpleJsonApi::RelationshipsBuilder.new(['author'])
+      r = SimpleJsonApi::RelationshipsBuilder.new
                                              .relate('author', author_serializer)
                                              .relationships
 
@@ -135,21 +106,11 @@ describe SimpleJsonApi::RelationshipsBuilder do
       )
     end
 
-    it 'skips if relationship is not requested' do
-      author_serializer.as_json_options = { include: [:data] }
-
-      r = SimpleJsonApi::RelationshipsBuilder.new(['foobar'])
-                                             .relate('author', author_serializer)
-                                             .relationships
-
-      expect(r).to eq({})
-    end
-
     it 'creates an array if a key is used more than once' do
       comment1_serializer.as_json_options = { include: [:data] }
       comment2_serializer.as_json_options = { include: [:data] }
 
-      r = SimpleJsonApi::RelationshipsBuilder.new(['comments'])
+      r = SimpleJsonApi::RelationshipsBuilder.new
                                              .relate('comments', comment1_serializer)
                                              .relate('comments', comment2_serializer)
                                              .relationships
@@ -166,7 +127,7 @@ describe SimpleJsonApi::RelationshipsBuilder do
       comment1_serializer.as_json_options = { include: [:data] }
       comment2_serializer.as_json_options = { include: [:data] }
 
-      r = SimpleJsonApi::RelationshipsBuilder.new(['comments'])
+      r = SimpleJsonApi::RelationshipsBuilder.new
                                              .relate('comments', comment1_serializer)
                                              .relate('comments', comment1_serializer)
                                              .relate('comments', comment1_serializer)
@@ -179,7 +140,7 @@ describe SimpleJsonApi::RelationshipsBuilder do
         }
       )
 
-      r = SimpleJsonApi::RelationshipsBuilder.new(['comments'])
+      r = SimpleJsonApi::RelationshipsBuilder.new
                                              .relate('comments', comment1_serializer)
                                              .relate('comments', comment1_serializer)
                                              .relate('comments', comment2_serializer)
@@ -196,7 +157,7 @@ describe SimpleJsonApi::RelationshipsBuilder do
 
     it 'allows relationship type to be specified (defaults to relationship name)' do
       author_serializer.as_json_options = { include: [:data] }
-      r = SimpleJsonApi::RelationshipsBuilder.new(['comment.author'])
+      r = SimpleJsonApi::RelationshipsBuilder.new
                                              .relate('comment.author', author_serializer, type: 'author')
                                              .relationships
 
@@ -217,7 +178,7 @@ describe SimpleJsonApi::RelationshipsBuilder do
       author_serializer.as_json_options = { include: [:data] }
       comment1_serializer.as_json_options = { include: [:data] }
 
-      r = SimpleJsonApi::RelationshipsBuilder.new(%w[author comments])
+      r = SimpleJsonApi::RelationshipsBuilder.new
                                              .relate_if('author', author_serializer, -> { 1 == 1 })
                                              .relate_if('comments', comment1_serializer, -> { 1 == 2 })
                                              .relationships
@@ -232,18 +193,6 @@ describe SimpleJsonApi::RelationshipsBuilder do
         }
       )
     end
-
-    it 'skips if relationship is not requested' do
-      author_serializer.as_json_options = { include: [:data] }
-      comment1_serializer.as_json_options = { include: [:data] }
-
-      r = SimpleJsonApi::RelationshipsBuilder.new([])
-                                             .relate_if('author', author_serializer, -> { 1 == 1 })
-                                             .relate_if('comments', comment1_serializer, -> { 1 == 2 })
-                                             .relationships
-
-      expect(r).to eq({})
-    end
   end
 
   describe '#relate_each' do
@@ -255,7 +204,7 @@ describe SimpleJsonApi::RelationshipsBuilder do
     end
 
     it 'relates each when in @includes' do
-      r = SimpleJsonApi::RelationshipsBuilder.new(['comments'])
+      r = SimpleJsonApi::RelationshipsBuilder.new
                                              .relate_each('comments', comments) { |c| ComSerializer.new(c, as_json_options: { include: [:data] }) }
                                              .relationships
 
@@ -266,19 +215,11 @@ describe SimpleJsonApi::RelationshipsBuilder do
         ]
       )
     end
-
-    it 'skips if relationship is not requested' do
-      r = SimpleJsonApi::RelationshipsBuilder.new(['foobar'])
-                                             .relate_each('comments', comments) { |c| ComSerializer.new(c) }
-                                             .relationships
-
-      expect(r).to eq({})
-    end
   end
 
   describe '#include' do
     it 'adds, by default, the data element to included (array)' do
-      r = SimpleJsonApi::RelationshipsBuilder.new(%w[author comments])
+      r = SimpleJsonApi::RelationshipsBuilder.new
                                              .include('author', author_serializer)
                                              .include('comments', comment1_serializer)
                                              .include('comments', comment2_serializer)
@@ -292,7 +233,7 @@ describe SimpleJsonApi::RelationshipsBuilder do
     end
 
     it 'adds to relationships if :relate option is specified' do
-      b = SimpleJsonApi::RelationshipsBuilder.new(%w[author comments])
+      b = SimpleJsonApi::RelationshipsBuilder.new
                                              .include('author', author_serializer, relate: { include: [:relationship_data] })
                                              .include('comments', comment1_serializer, relate: { include: [:relationship_data] })
                                              .include('comments', comment2_serializer, relate: { include: [:relationship_data] })
@@ -307,17 +248,8 @@ describe SimpleJsonApi::RelationshipsBuilder do
                                     'comments' => [{ 'data' => { 'type' => 'comments', 'id' => 1 } }, { 'data' => { 'type' => 'comments', 'id' => 2 } }])
     end
 
-    it 'skips if relationship is not requested' do
-      b = SimpleJsonApi::RelationshipsBuilder.new([])
-                                             .include('author', author_serializer, relate: { include: [:relationship_data] })
-                                             .include('comments', comment2_serializer, relate: { include: [:relationship_data] })
-
-      expect(b.relationships).to eq({})
-      expect(b.includes).to eq([])
-    end
-
     it 'allows relationship type to be specified in options' do
-      b = SimpleJsonApi::RelationshipsBuilder.new(['comment.author'])
+      b = SimpleJsonApi::RelationshipsBuilder.new
                                              .include('comment.author', author_serializer, relate: { include: [:relationship_data] }, type: 'author')
 
       # type doesn't affect includes
@@ -334,7 +266,7 @@ describe SimpleJsonApi::RelationshipsBuilder do
 
   describe '#include_if' do
     it 'includes content if proc return true' do
-      r = SimpleJsonApi::RelationshipsBuilder.new(%w[author comments])
+      r = SimpleJsonApi::RelationshipsBuilder.new
                                              .include_if('author', author_serializer, -> { 1 == 1 })
                                              .include_if('comments', comment1_serializer, -> { 1 == 2 })
                                              .include_if('comments', comment2_serializer, -> { 'not a bool' })
@@ -343,15 +275,6 @@ describe SimpleJsonApi::RelationshipsBuilder do
       expect(r).to eq([
                         { 'type' => 'people', 'id' => 6, 'attributes' => { 'first_name' => 'John', 'last_name' => 'Steinbeck' } }
                       ])
-    end
-
-    it 'skips if relationship is not requested' do
-      r = SimpleJsonApi::RelationshipsBuilder.new([])
-                                             .include_if('author', author_serializer, -> { 1 == 1 })
-                                             .include_if('comments', comment1_serializer, -> { 1 == 2 })
-                                             .included
-
-      expect(r).to eq([])
     end
   end
 
@@ -364,7 +287,7 @@ describe SimpleJsonApi::RelationshipsBuilder do
     end
 
     it 'adds each element to included (array)' do
-      r = SimpleJsonApi::RelationshipsBuilder.new(%w[author comments])
+      r = SimpleJsonApi::RelationshipsBuilder.new
                                              .include('author', author_serializer)
                                              .include_each('comments', comments) { |c| ComSerializer.new(c) }
                                              .included
@@ -377,7 +300,7 @@ describe SimpleJsonApi::RelationshipsBuilder do
     end
 
     it 'adds to relationships if :relate option is specified' do
-      b = SimpleJsonApi::RelationshipsBuilder.new(%w[author comments])
+      b = SimpleJsonApi::RelationshipsBuilder.new
                                              .include('author', author_serializer, relate: { include: [:relationship_data] })
                                              .include_each('comments', comments, relate: { include: [:relationship_data] }) { |c| ComSerializer.new(c) }
 
@@ -389,14 +312,6 @@ describe SimpleJsonApi::RelationshipsBuilder do
 
       expect(b.relationships).to eq('author' => { 'data' => { 'type' => 'people', 'id' => 6 } },
                                     'comments' => [{ 'data' => { 'type' => 'comments', 'id' => 1 } }, { 'data' => { 'type' => 'comments', 'id' => 2 } }])
-    end
-
-    it 'skips if relationship is not requested' do
-      b = SimpleJsonApi::RelationshipsBuilder.new([])
-                                             .include_each('comments', comments, relate: { include: [:relationship_data] }) { |c| ComSerializer.new(c) }
-
-      expect(b.relationships).to eq({})
-      expect(b.includes).to eq([])
     end
   end
 

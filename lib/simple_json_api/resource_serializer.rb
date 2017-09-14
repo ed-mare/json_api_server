@@ -39,10 +39,13 @@ module SimpleJsonApi # :nodoc:
   #
   #     def relationships
   #        @relationships ||= begin
-  #           relationships_builder
-  #             .relate('comment.author', user_serializer(@object.author), type: 'author')
-  #             .include('comment.author.include', user_serializer(@object.author),
+  #           if relationship?('comment.author')
+  #             rb.relate('comment.author', user_serializer(@object.author), type: 'author')
+  #           elsif relationship?('comment.author.include')
+  #            rb.include('comment.author.include', user_serializer(@object.author),
   #                 type: 'author', relate: {include: [:links]})
+  #           end
+  #          rb
   #        end
   #     end
   #   end
@@ -142,16 +145,16 @@ module SimpleJsonApi # :nodoc:
       @meta_builder ||= SimpleJsonApi::MetaBuilder.new
     end
 
-    # Returns instance of SimpleJsonApi::RelationshipsBuilder.
+    # Returns a new instance of SimpleJsonApi::RelationshipsBuilder.
     #
     # i.e.,
     #
-    #  self.relationships_builder
+    #  builder = relationships_builder
     #     .relate(...)
     #     .relate_if(...)
     #     .relate_each(...)
     #  ...
-    #  self.relationships_builder
+    #  builder
     #     .include(...)
     #     .include_if(...)
     #     .include_each(...)
@@ -159,7 +162,24 @@ module SimpleJsonApi # :nodoc:
     #  self.relationships_builder.relationships # get relationships section
     #  self.relationships_builder.included # get included section
     def relationships_builder
-      @relationships_builder ||= SimpleJsonApi::RelationshipsBuilder.new(@includes)
+      @relationships_builder ||= SimpleJsonApi::RelationshipsBuilder.new
+    end
+
+    alias rb relationships_builder
+
+    # Returns true if relationship is in #includes array.
+    #
+    # * <tt>relationship</tt> - Name of relationship. String or symbol.
+    #
+    # i.e.,
+    #
+    #   # GET /articles?include=comment.author,publisher becomes:
+    #   # includes = ['comment.author', 'publisher']
+    #
+    #   self.relationship?('comment.author') # => true
+    #   self.relationship?('addresses') # => false
+    def relationship?(relationship)
+      @includes.respond_to?(:include?) && @includes.include?(relationship.to_s)
     end
 
     # Returns the fields for a specific type. i.e., fields_for('articles') or nil

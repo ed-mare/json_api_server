@@ -8,19 +8,14 @@ module SimpleJsonApi # :nodoc:
   #  ie., GET /articles/1?include=comments,comment.author,tags HTTP/1.1
   #
   # Use this class to build <tt>relationships</tt> and <tt>included</tt> sections
-  # in serializers. It will add a relationship/include if it exists in the
-  # #includes array (see #includes attribute).
+  # in serializers.
   #
   # ==== Examples
   #
-  # Relate, relate conditionally, or relate a collection. In this example, <tt>author</tt> is not
-  # added because it's not in <tt>includes</tt>. Publisher is added only
-  # if a condition is met (current user is an admin).
+  # Relate, relate conditionally, or relate a collection. In this example,
+  # Publisher is added only if a condition is met (current user is an admin).
   #
-  #  builder = SimpleJsonApi::RelationshipsBuilder.new(['comments', 'publisher'])
-  #  builder.includes # => ['comments', 'publisher']
-  #
-  #  builder
+  #  SimpleJsonApi::RelationshipsBuilder.new
   #    .relate('author', AuthorSerializer.new(@object.author))
   #    .relate_if('publisher', PublisherSerializer.new(@object.publisher),
   #         -> { current_user.admin? })
@@ -29,23 +24,23 @@ module SimpleJsonApi # :nodoc:
   #
   #  # produces something like this if current user is an admin:
   #  # {
+  #  #   "author"=>{
+  #  #      {data: {type: "authors", id: 6, attributes: {first_name: "john", last_name: "Doe"}}}
+  #  #   },
+  #  #   "publisher"=>{
+  #  #     {data: {type: "publishers", id: 1, attributes: {name: "abc"}}}
+  #  #   },
   #  #   "comments"=>[
   #  #     {data: {type: "comments", id: 1, attributes: {title: "a", comment: "b"}}},
   #  #     {data: {type: "comments", id: 2, attributes: {title: "c", comment: "d"}}}
-  #  #   ],
-  #  #   "publisher"=>{
-  #  #     {data: {type: "publishers", id: 1, attributes: {name: "abc"}}}
-  #  #   }
+  #  #   ]
   #  # }
   #
   # <tt>relationships</tt> can include all relationship data or it can reference data in
   # <tt>included</tt>. To include and relate in one go, #include with the <tt>:relate</tt> option
   # which takes a BaseSerializer#as_json_options hash.
   #
-  #  builder = SimpleJsonApi::RelationshipsBuilder.new(['comments', 'publisher'])
-  #  builder.includes # => ['comments', 'publisher']
-  #
-  #  builder
+  #  builder = SimpleJsonApi::RelationshipsBuilder.new
   #    .include('author', AuthorSerializer.new(@object.author),
   #        relate: { include: [:relationship_data] })
   #    .include_if('publisher', PublisherSerializer.new(@object.publisher),
@@ -53,33 +48,29 @@ module SimpleJsonApi # :nodoc:
   #    .include_each('comments', @object.comments) {|c| CommentSerializer.new(c) }
   #
   #  builder.relationships
-  #  # produces something like this if current user is an admin (relationship data):
+  #  # produces something like this if current user is an admin:
   #  # {
+  #  #  "author" => {
+  #  #    {data: {id: 6, type: "authors"}}
+  #  #   },
   #  #  "publisher" => {
-  #  #    {data: {type: "publishers", id: 1}}
+  #  #    {links: {self: 'http://.../publishers/1'}}
   #  #   }
   #  # }
   #
   #  builder.included
   #  # produces something like this:
   #  # [
+  #  #   {type: "author", id: 6, attributes: {first_name: "john", last_name: "Doe"}},
   #  #   {type: "publisher", id: 1, attributes: {name: "abc"}},
   #  #   {type: "comments", id: 1, attributes: {title: "a", comment: "b"}},
   #  #   {type: "comments", id: 2, attributes: {title: "c", comment: "d"}}
   #  # ]
   #
   class RelationshipsBuilder
-    # (Array) Whitelisted includes. Should come from SimpleJsonApi::Include#includes.
-    # From <tt>includes</tt> constructor parameter.
-    attr_reader :includes
-
-    # Arguments:
-    #
-    # - <tt>includes</tt> - (Array) Array of whitelisted includes (array of strings). Defaults to empty array.
-    def initialize(includes = [])
+    def initialize
       @relationships = {}
       @included = []
-      @includes = includes.is_a?(Array) ? includes : []
     end
 
     # Returns <tt>relationships</tt> object. Relationships added with
@@ -101,7 +92,7 @@ module SimpleJsonApi # :nodoc:
       @included
     end
 
-    # Add relationships with this method. Adds only if <tt>relationship</tt> is in #includes.
+    # Add relationships with this method.
     #
     # Arguments:
     #
@@ -137,15 +128,12 @@ module SimpleJsonApi # :nodoc:
     #  #   }
     #  # }
     def relate(relationship, serializer, **options)
-      if relationship?(relationship)
-        type = options[:type] || relationship
-        merge_relationship(type, serializer)
-      end
+      type = options[:type] || relationship
+      merge_relationship(type, serializer)
       self
     end
 
-    # Add to <tt>relationships</tt> with this method. Adds if <tt>relationship</tt> is in #includes AND
-    # proc returns true.
+    # Add to <tt>relationships</tt> with this method. Adds if proc returns true.
     #
     # Arguments:
     #
@@ -163,7 +151,7 @@ module SimpleJsonApi # :nodoc:
       self
     end
 
-    # Add a collection to <tt>relationships</tt> with this method. Adds if <tt>relationship</tt> is in #includes.
+    # Add a collection to <tt>relationships</tt> with this method.
     #
     # Arguments:
     #
@@ -181,7 +169,7 @@ module SimpleJsonApi # :nodoc:
       self
     end
 
-    # Add to <tt>included</tt> with this method. Adds if <tt>relationship</tt> is in #includes.
+    # Add to <tt>included</tt> with this method.
     #
     # Arguments:
     #
@@ -201,17 +189,15 @@ module SimpleJsonApi # :nodoc:
     #  SimpleJsonApi::RelationshipsBuilder.new(['author'])
     #     .include('author', author_serializer)
     def include(relationship, serializer, **options)
-      if relationship?(relationship)
-        merge_included(serializer)
-        if options[:relate]
-          serializer.as_json_options = options[:relate]
-          relate(relationship, serializer, options)
-        end
+      merge_included(serializer)
+      if options[:relate]
+        serializer.as_json_options = options[:relate]
+        relate(relationship, serializer, options)
       end
       self
     end
 
-    # Adds to <tt>included</tt> if proc returns true and <tt>relationship</tt> is in #includes.
+    # Adds to <tt>included</tt> if proc returns true.
     #
     # Arguments:
     #
@@ -230,7 +216,7 @@ module SimpleJsonApi # :nodoc:
       self
     end
 
-    # Add a collection to <tt>included</tt> with this method. Adds if <tt>relationship</tt> is in #includes.
+    # Add a collection to <tt>included</tt> with this method.
     #
     # Arguments:
     #
@@ -249,21 +235,6 @@ module SimpleJsonApi # :nodoc:
     def include_each(relationship, collection, **options)
       collection.each { |item| include(relationship, yield(item), options) }
       self
-    end
-
-    # Returns true if relationship is in #includes array.
-    #
-    # * <tt>relationship</tt> - Name of relationship. String or symbol.
-    #
-    # i.e.,
-    #
-    #   # GET /articles?include=comment.author,publisher becomes:
-    #   # includes = ['comment.author', 'publisher']
-    #
-    #   self.relationship?('comment.author') # => true
-    #   self.relationship?('addresses') # => false
-    def relationship?(relationship)
-      @includes.respond_to?(:include?) && @includes.include?(relationship.to_s)
     end
 
     protected

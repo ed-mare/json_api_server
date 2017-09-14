@@ -29,10 +29,15 @@ class CommentSerializer < SimpleJsonApi::ResourceSerializer
 
   def relationships
     @relationships ||= begin
+      if relationship?('comment.author')
+        relationships_builder.relate('comment.author', user_serializer(@object.author), type: 'author')
+      end
+      if relationship?('comment.author.links')
+        relationships_builder.include('comment.author.links', user_serializer(@object.author),
+                                      type: 'author', relate: { include: [:links] })
+      end
+
       relationships_builder
-        .relate('comment.author', user_serializer(@object.author), type: 'author')
-        .include('comment.author.links', user_serializer(@object.author),
-                 type: 'author', relate: { include: [:links] })
     end
   end
 

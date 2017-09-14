@@ -32,6 +32,21 @@ describe SimpleJsonApi::ResourceSerializer do
     end
   end
 
+  describe '#relationship?' do
+    it 'is true when relationship is in @includes' do
+      expect(instance_with_options.send(:relationship?, 'tags')).to eq(true)
+    end
+
+    it 'is true when symbol is used' do
+      expect(instance_with_options.send(:relationship?, :tags)).to eq(true)
+    end
+
+    it 'is false when not in includes' do
+      expect(instance_with_options.send(:relationship?, 'idontexist')).to eq(false)
+      expect(instance_without_options.send(:relationship?, 'idontexist')).to eq(false)
+    end
+  end
+
   describe '.from_builder' do
     let(:request) do
       FakeRequest.new({
