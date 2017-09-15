@@ -39,6 +39,10 @@ describe SimpleJsonApi::BaseSerializer do
       }]
     end
 
+    def relationship_data
+      [{type: 'articles', id: '1'}]
+    end
+
     def included
       [
         {
@@ -126,13 +130,7 @@ describe SimpleJsonApi::BaseSerializer do
       example.as_json_options = { include: [:relationship_data] }
       expected = {
         'data' => [
-          { 'type' => 'articles',
-            'id' => '1',
-            'relationships' => {
-              'author' => {
-                'data' => { 'id' => '42', 'type' => 'people' }
-              }
-            } }
+          { 'type' => 'articles', 'id' => '1' }
         ]
       }
       # removes attributes from data elements.

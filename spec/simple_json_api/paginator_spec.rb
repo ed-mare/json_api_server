@@ -98,11 +98,11 @@ describe SimpleJsonApi::Paginator do
 
   describe '#as_json' do
     it 'returns a hash with first, self, next, prev, last' do
-      expect(paginator.as_json).to eq(first: "#{base_url}?foo=bar&page%5Blimit%5D=#{per_page}&page%5Bnumber%5D=1",
-                                      last: "#{base_url}?foo=bar&page%5Blimit%5D=#{per_page}&page%5Bnumber%5D=24",
-                                      self: "#{base_url}?foo=bar&page%5Blimit%5D=#{per_page}&page%5Bnumber%5D=3",
-                                      next: "#{base_url}?foo=bar&page%5Blimit%5D=#{per_page}&page%5Bnumber%5D=4",
-                                      prev: "#{base_url}?foo=bar&page%5Blimit%5D=#{per_page}&page%5Bnumber%5D=2")
+      expect(paginator.as_json).to eq('first' => "#{base_url}?foo=bar&page%5Blimit%5D=#{per_page}&page%5Bnumber%5D=1",
+                                      'last' => "#{base_url}?foo=bar&page%5Blimit%5D=#{per_page}&page%5Bnumber%5D=24",
+                                      'self'=> "#{base_url}?foo=bar&page%5Blimit%5D=#{per_page}&page%5Bnumber%5D=3",
+                                      'next' => "#{base_url}?foo=bar&page%5Blimit%5D=#{per_page}&page%5Bnumber%5D=4",
+                                      'prev' => "#{base_url}?foo=bar&page%5Blimit%5D=#{per_page}&page%5Bnumber%5D=2")
     end
   end
 
@@ -114,10 +114,10 @@ describe SimpleJsonApi::Paginator do
 
   describe '#meta_info' do
     it 'returns current_page, total_pages, and per_page as a hash' do
-      expect(paginator.meta_info).to eq(links: {
-                                          current_page: current_page,
-                                          total_pages: total_pages,
-                                          per_page: per_page
+      expect(paginator.meta_info).to eq('links' => {
+                                          'current_page' => current_page,
+                                          'total_pages' => total_pages,
+                                          'per_page' => per_page
                                         })
     end
   end

@@ -1,26 +1,28 @@
 # Model serailizer for Topic. Inherit from SimpleJsonApi::BaseSerializer.
 class TopicSerializer < SimpleJsonApi::ResourceSerializer
+  set_type 'topics'
+
   def links
     { self: File.join(base_url, "/topics/#{@object.id}") }
   end
 
   def data
-    {
-      type: 'topics',
-      id: @object.id,
-      attributes: attributes,
-      relationships: relationships.relationships
-    }
+    Hash.new.tap do |h|
+      h['type'] = self.class.type
+      h['id'] = @object.id
+      h['attributes'] = attributes
+      h['relationships'] = inclusions.relationships if inclusions?
+    end
   end
 
   def included
-    relationships.included
+    inclusions.included if inclusions?
   end
 
   protected
 
   def attributes
-    attributes_builder_for('topics')
+    attributes_builder_for(self.class.type)
       .add('book', @object.book)
       .add('author', @object.author)
       .add('quote', @object.quote)
@@ -32,17 +34,16 @@ class TopicSerializer < SimpleJsonApi::ResourceSerializer
       .attributes
   end
 
-  def relationships
-    @relationships ||= begin
-      if relationship?('publisher')
-        rb.relate('publisher', publisher_serializer(@object.publisher))
-      end
+  def inclusions
+    @inclusions ||= begin
+      rb.relate('publisher', publisher_serializer(@object.publisher)) if
+        relationship?('publisher')
       if relationship?('comments')
         rb.relate_each('comments', @object.comments) { |c| comment_serializer(c) }
       elsif relationship?('comments.includes')
-        rb.include_each('comments.includes', @object.comments, type: 'comments',
-                                                               relate: { include: [:relationship_data] }) { |c| comment_serializer(c) }
+        rb.include_each('comments', @object.comments, relate: { include: [:relationship_data] }) { |c| comment_serializer(c) }
       end
+
       rb
     end
   end

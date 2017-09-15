@@ -1,11 +1,13 @@
 class UserSerializer < SimpleJsonApi::ResourceSerializer
+  set_type 'users'
+
   def links
     { self: File.join(base_url, "/users/#{@object.id}") }
   end
 
   def data
     {
-      type: 'users',
+      type: self.class.type,
       id: @object.id,
       attributes: attributes
     }
@@ -14,7 +16,7 @@ class UserSerializer < SimpleJsonApi::ResourceSerializer
   protected
 
   def attributes
-    attributes_builder_for('users')
+    attributes_builder_for(self.class.type)
       .add('email', @object.email)
       .add('first_name', @object.first_name)
       .add('last_name', @object.last_name)

@@ -401,7 +401,7 @@ RSpec.describe 'Examples (putting it all together)', type: :controller do
         expect(comments_relationship.length).to eq(5)
         expect(comments_includes.length).to eq(5)
 
-        expect(comment_data.keys).to eq(%w[type id relationships])
+        expect(comment_data.keys).to eq(%w[type id])
         expect(comment_includes.keys).to eq(%w[type id attributes relationships])
         expect(comment_includes['attributes'].keys).to eq(%w[title comment created_at])
       end

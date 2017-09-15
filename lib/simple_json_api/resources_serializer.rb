@@ -1,3 +1,4 @@
+# TODO: inheritance is dubious with introduction of :type and relationship_data.
 module SimpleJsonApi # :nodoc:
   # ==== Description
   #
@@ -99,6 +100,12 @@ module SimpleJsonApi # :nodoc:
     # Subclasses override for customized behaviour.
     def data
       data = @objects.try(:map) { |o| o.try(:data) }
+      data.try(:compact!) || data
+    end
+
+    # Subclasses override for customized behaviour.
+    def relationship_data
+      data = @objects.try(:map) { |o| o.try(:relationship_data) }
       data.try(:compact!) || data
     end
 

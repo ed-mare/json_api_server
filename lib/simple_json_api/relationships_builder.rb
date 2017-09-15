@@ -17,8 +17,6 @@ module SimpleJsonApi # :nodoc:
   #
   #  SimpleJsonApi::RelationshipsBuilder.new
   #    .relate('author', AuthorSerializer.new(@object.author))
-  #    .relate_if('publisher', PublisherSerializer.new(@object.publisher),
-  #         -> { current_user.admin? })
   #    .relate_each('comments', @object.comments) {|c| CommentSerializer.new(c)}
   #    .relationships
   #
@@ -43,8 +41,6 @@ module SimpleJsonApi # :nodoc:
   #  builder = SimpleJsonApi::RelationshipsBuilder.new
   #    .include('author', AuthorSerializer.new(@object.author),
   #        relate: { include: [:relationship_data] })
-  #    .include_if('publisher', PublisherSerializer.new(@object.publisher),
-  #        -> { current_user.admin? }, relate: { include: [:links] })
   #    .include_each('comments', @object.comments) {|c| CommentSerializer.new(c) }
   #
   #  builder.relationships
@@ -88,7 +84,7 @@ module SimpleJsonApi # :nodoc:
     # Returns <tt>included</tt> object. Includes added with
     # #include, #include_if, #include_each.
     def included
-      @included.uniq! if @included.respond_to?(:uniq)
+      @included.uniq! if @included.respond_to?(:uniq!)
       @included
     end
 
@@ -96,27 +92,12 @@ module SimpleJsonApi # :nodoc:
     #
     # Arguments:
     #
-    # - <tt>relationship</tt> - (String) Relationship passed in with the request.
+    # - <tt>type</tt> - (String) Relationship type/name.
     # - <tt>serializer</tt> - (instance of serializer or something that responds to :as_json) Content.
-    # - <tt>options</tt> - (Hash) -
-    #   - :type (String) - Optional. <tt>type</tt> to use in relationships. <tt>type</tt> defaults to #relationship parameter.
     #
     # i.e.,
     #  SimpleJsonApi::RelationshipsBuilder.new(['comment.author'])
-    #     .relate('comment.author', author_serializer)
-    #
-    #  # outputs something like...
-    #  # { 'comment.author' => {
-    #  #  :data => {
-    #  #     :type => "people",
-    #  #    :id => 6,
-    #  #     :attributes => {:first_name=>"John", :last_name=>"Steinbeck"}
-    #  #     }
-    #  #   }
-    #  # }
-    #
-    #  SimpleJsonApi::RelationshipsBuilder.new(['comment.author'])
-    #     .relate('comment.author', author_serializer, type: 'author')
+    #    .relate('author', author_serializer)
     #
     #  # outputs something like...
     #  # { 'author' => {
@@ -127,27 +108,21 @@ module SimpleJsonApi # :nodoc:
     #  #     }
     #  #   }
     #  # }
-    def relate(relationship, serializer, **options)
-      type = options[:type] || relationship
-      merge_relationship(type, serializer)
-      self
-    end
-
-    # Add to <tt>relationships</tt> with this method. Adds if proc returns true.
     #
-    # Arguments:
-    #
-    # - <tt>relationship</tt> - (String) Relationship passed in with the request.
-    # - <tt>serializer</tt> - (instance of serializer or something that responds to :as_json) - relationship content.
-    # - <tt>proc</tt> - (Proc) - Proc that returns true or false.
-    # - <tt>options</tt> - (Hash) -
-    #   - :type (String) - Optional. Type to use in relationships. <tt>type</tt> defaults to #relationship parameter.
-    #
-    # i.e.,
     #  SimpleJsonApi::RelationshipsBuilder.new(['comment.author'])
-    #     .relate_if('comment.author', author_serializer, -> { 1 == 1 })
-    def relate_if(relationship, serializer, proc, **_options)
-      relate(relationship, serializer) if proc.call == true
+    #     .relate('author', author_serializer)
+    #
+    #  # outputs something like...
+    #  # { 'author' => {
+    #  #  :data => {
+    #  #     :type => "people",
+    #  #    :id => 6,
+    #  #     :attributes => {:first_name=>"John", :last_name=>"Steinbeck"}
+    #  #     }
+    #  #   }
+    #  # }
+    def relate(type, serializer)
+      merge_relationship(type, serializer)
       self
     end
 
@@ -155,17 +130,15 @@ module SimpleJsonApi # :nodoc:
     #
     # Arguments:
     #
-    # - <tt>relationship</tt> - (String) Relationship passed in with the request.
+    # - <tt>type</tt> - (String) Relationship type/name.
     # - <tt>collection</tt> - Collection of objects to pass to serializer.
-    # - <tt>options</tt> - (Hash) -
-    #   - :type (String) - Optional. Type to use in relationships. <tt>type</tt> defaults to #relationship parameter.
     # - <tt>block</tt> - Block that returns a serializer or something that repsonds_to as_json.
     #
     # i.e.,
     #  SimpleJsonApi::RelationshipsBuilder.new(['comments'])
-    #     .relate_each('comments', @comments) { |c| CommentSerializer.new(c) }
-    def relate_each(relationship, collection, **options)
-      collection.each { |item| relate(relationship, yield(item), options) }
+    #    .relate_each('comments', @comments) { |c| CommentSerializer.new(c) }
+    def relate_each(type, collection)
+      collection.each { |item| relate(type, yield(item)) }
       self
     end
 
@@ -173,46 +146,26 @@ module SimpleJsonApi # :nodoc:
     #
     # Arguments:
     #
-    # - <tt>relationship</tt> - (String) Relationship passed in with the request.
+    # - <tt>type</tt> - (String) Relationship type/name.
     # - <tt>serializer</tt> - (instance of serializer or something that responds to :as_json) - relationship content.
     # - <tt>options</tt> - (Hash) -
     #   - :relate (Hash) - Optional. Add to relationships. BaseSerializer#as_json_options hash, i.e, <tt>{ include: [:relationship_data] }</tt>.
-    #   - :type (String) - Optional. Type to use in relationships. <tt>type</tt> defaults to #relationship parameter.
     #
     # i.e.,
     #  # include and relate
     #  SimpleJsonApi::RelationshipsBuilder.new(['comment.author'])
-    #     .include('comment.author', author_serializer,
-    #          relate: {include: [:relationship_data]}, type: 'author')
+    #    .include('author', author_serializer,
+    #       relate: {include: [:relationship_data]})
     #
     #  # or just include
     #  SimpleJsonApi::RelationshipsBuilder.new(['author'])
     #     .include('author', author_serializer)
-    def include(relationship, serializer, **options)
+    def include(type, serializer, **options)
       merge_included(serializer)
       if options[:relate]
         serializer.as_json_options = options[:relate]
-        relate(relationship, serializer, options)
+        relate(type, serializer)
       end
-      self
-    end
-
-    # Adds to <tt>included</tt> if proc returns true.
-    #
-    # Arguments:
-    #
-    # - <tt>relationship</tt> - (String) Relationship passed in with the request.
-    # - <tt>serializer</tt> - (instance of serializer or something that responds to :as_json) - relationship content.
-    # - <tt>proc</tt> - (Proc) - Proc that returns true or false.
-    # - <tt>options</tt> - (Hash) -
-    #   - :relate (Hash) - Optional. Add to relationships. BaseSerializer#as_json_options hash, i.e, <tt>{ include: [:relationship_data] }</tt>.
-    #   - :type (String) - Optional. Type to use in relationships. <tt>type</tt> defaults to #relationship parameter.
-    #
-    # i.e.,
-    #  SimpleJsonApi::RelationshipsBuilder.new(['author'])
-    #     .include_if('author', author_serializer, -> { 1 == 2 })
-    def include_if(relationship, serializer, proc, **options)
-      include(relationship, serializer, options) if proc.call == true
       self
     end
 
@@ -220,11 +173,10 @@ module SimpleJsonApi # :nodoc:
     #
     # Arguments:
     #
-    # - <tt>relationship</tt> - (String) Relationship passed in with the request.
+    # - <tt>type</tt> - (String) Relationship type/name.
     # - <tt>collection</tt> - Collection of objects to pass to block.
     # - <tt>options</tt> - (Hash) -
     #   - :relate (Hash) - Optional. Add to relationships. BaseSerializer#as_json_options hash, i.e, <tt>{ include: [:relationship_data] }</tt>.
-    #   - :type (String) - Optional. Type to use in relationships. <tt>type</tt> defaults to #relationship parameter.
     # - <tt>block</tt> - Block that returns a serializer or something that repsonds_to as_json.
     #
     # i.e.,
@@ -232,24 +184,24 @@ module SimpleJsonApi # :nodoc:
     #  SimpleJsonApi::RelationshipsBuilder.new(['comments'])
     #     .include_each('comments', @comments) {|c| CommentSerializer.new(c)}
     #
-    def include_each(relationship, collection, **options)
-      collection.each { |item| include(relationship, yield(item), options) }
+    def include_each(type, collection, **options)
+      collection.each { |item| include(type, yield(item), options) }
       self
     end
 
     protected
 
-    def merge_relationship(relationship, value)
+    def merge_relationship(type, value)
       content = value.as_json if value.respond_to?(:as_json)
       return if content.blank?
 
-      if @relationships.key?(relationship)
-        unless @relationships[relationship].is_a?(Array)
-          @relationships[relationship] = [@relationships[relationship]]
+      if @relationships.key?(type)
+        unless @relationships[type].is_a?(Array)
+          @relationships[type] = [@relationships[type]]
         end
-        @relationships[relationship].push(content)
+        @relationships[type].push(content)
       else
-        @relationships.merge!(relationship => content)
+        @relationships.merge!(type => content)
       end
     end
 

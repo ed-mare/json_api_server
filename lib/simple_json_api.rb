@@ -4,6 +4,7 @@ require 'active_support/core_ext/module/delegation'
 require 'active_support/core_ext/object/blank'
 require 'active_support/core_ext/object/try'
 require 'active_support/core_ext/hash'
+require 'active_support/inflector'
 
 require 'simple_json_api/version'
 require 'simple_json_api/api_version'

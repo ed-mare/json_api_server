@@ -84,7 +84,19 @@ module SimpleJsonApi # :nodoc:
     #   .add('name', @object.name)
     #   .attributes
     def add(name, value)
-      @hash[name] = value if add_attr?(name)
+      @hash[name.to_s] = value if add_attr?(name)
+      self
+    end
+
+    # Add multiple attributes.
+    #
+    # i.e,
+    #
+    #  SimpleJsonApi::AttributesBuilder.new(fields)
+    #   .add_multi(@object, 'name', 'email', 'logins')
+    #   .attributes
+    def add_multi(object, *attrs)
+      attrs.each {|attr| add(attr, object.send(attr)) }
       self
     end
 

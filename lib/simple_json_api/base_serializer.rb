@@ -113,6 +113,12 @@ module SimpleJsonApi # :nodoc:
       nil
     end
 
+    # JSON to render with #as_json_option :relationship_data. Subclass implements.
+    # Api spec: http://jsonapi.org/format/#fetching-relationships
+    def relationship_data
+      nil
+    end
+
     # JSON API *included* section. Sublclass implements.
     # Api spec: http://jsonapi.org/format/#fetching-includes
     def included
@@ -142,7 +148,7 @@ module SimpleJsonApi # :nodoc:
       hash = {}
 
       if sections.include?(:relationship_data)
-        hash['data'] = relationship_data(data)
+        hash['data'] = relationship_data
       else
         sections.each { |s| hash[s] = send(s) if sections.include?(s) }
       end
@@ -151,17 +157,6 @@ module SimpleJsonApi # :nodoc:
     end
 
     protected
-
-    # Removes attributes section from data.
-    def relationship_data(data)
-      if data.respond_to?(:keys)
-        data.reject { |k, _v| k.to_s == 'attributes' } # new copy
-      elsif data.respond_to?(:map)
-        data.map { |v| relationship_data(v) } # new copy
-      else
-        data
-      end
-    end
 
     # Configuration base_url.
     def base_url

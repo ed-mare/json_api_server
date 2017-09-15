@@ -1,8 +1,13 @@
 require 'spec_helper'
+require 'ostruct'
 
 describe SimpleJsonApi::AttributesBuilder do
   let(:fields) { %w[title body author_name created_at updated_at] }
   let(:fields1) { %w[title body author_name] }
+  let(:object) do
+    OpenStruct.new(title: 'what', body: 'ho', author_name: 'John',
+    created_at: Time.now, updated_at: Time.now)
+  end
 
   describe '#fields' do
     it 'is assigned in initialize' do
@@ -52,7 +57,7 @@ describe SimpleJsonApi::AttributesBuilder do
                                               .attributes
 
       expect(attrs).to eq('title' => 'the title',
-                          :body => 'the body',
+                          'body' => 'the body',
                           'author_name' => 'the name')
     end
 
@@ -70,6 +75,33 @@ describe SimpleJsonApi::AttributesBuilder do
                           'author_name' => 'the name',
                           'created_at' => '2000-07-08',
                           'updated_at' => '2000-07-09')
+    end
+  end
+
+  describe 'add_multi' do
+    it 'is chainable' do
+      b = SimpleJsonApi::AttributesBuilder.new(fields1)
+      expect(b.add_multi(object, :title)).to be(b)
+    end
+
+    it 'adds values in the fields array' do
+      attrs = SimpleJsonApi::AttributesBuilder.new(fields1)
+                .add_multi(object, :title, :body, :author_name, :created_at)
+                .attributes
+
+      expect(attrs).to eq('title' => 'what',
+                          'body' => 'ho',
+                          'author_name' => 'John')
+    end
+
+    it 'takes symbols or strings for attributes' do
+      attrs = SimpleJsonApi::AttributesBuilder.new(fields1)
+                .add_multi(object, 'title', :body, 'author_name', :created_at)
+                .attributes
+
+      expect(attrs).to eq('title' => 'what',
+                                    'body' => 'ho',
+                                    'author_name' => 'John')
     end
   end
 

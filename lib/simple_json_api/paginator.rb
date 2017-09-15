@@ -16,7 +16,7 @@ module SimpleJsonApi # :nodoc:
   #    "last": "http://example.com/articles?page[number]=13&page[limit]=5"
   #  }
   class Paginator
-    @attrs = %i[first last self next prev]
+    @attrs = %w(first last self next prev)
 
     # Params:
     # - <tt>current_page</tt> (Integer)
@@ -95,10 +95,10 @@ module SimpleJsonApi # :nodoc:
     #  }
     def meta_info
       {
-        links: {
-          current_page: @current_page,
-          total_pages: @total_pages,
-          per_page: @per_page
+        'links' => {
+          'current_page' => @current_page,
+          'total_pages' => @total_pages,
+          'per_page' => @per_page
         }
       }
     end

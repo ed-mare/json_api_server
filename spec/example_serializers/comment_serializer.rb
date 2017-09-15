@@ -1,25 +1,27 @@
 class CommentSerializer < SimpleJsonApi::ResourceSerializer
+  set_type 'comments'
+
   def links
     { self: File.join(base_url, "/comments/#{@object.id}") }
   end
 
   def data
-    {
-      type: 'comments',
-      id: @object.id,
-      attributes: attributes,
-      relationships: relationships.relationships
-    }
+    Hash.new.tap do |h|
+      h['type'] = self.class.type
+      h['id'] = @object.id
+      h['attributes'] = attributes
+      h['relationships'] = inclusions.relationships if inclusions?
+    end
   end
 
   def included
-    relationships.included
+    inclusions.included if inclusions?
   end
 
   protected
 
   def attributes
-    attributes_builder_for('comments')
+    attributes_builder_for(self.class.type)
       .add('title', @object.title)
       .add('comment', @object.comment)
       .add('created_at', @object.created_at.try(:iso8601, 9))
@@ -27,16 +29,12 @@ class CommentSerializer < SimpleJsonApi::ResourceSerializer
       .attributes
   end
 
-  def relationships
-    @relationships ||= begin
-      if relationship?('comment.author')
-        relationships_builder.relate('comment.author', user_serializer(@object.author), type: 'author')
-      end
-      if relationship?('comment.author.links')
-        relationships_builder.include('comment.author.links', user_serializer(@object.author),
-                                      type: 'author', relate: { include: [:links] })
-      end
-
+  def inclusions
+    @inclusions ||= begin
+      relationships_builder.relate('author', user_serializer(@object.author)) if
+        relationship?('comment.author')
+      relationships_builder.include('author', user_serializer(@object.author),
+        relate: { include: [:links] }) if relationship?('comment.author.links')
       relationships_builder
     end
   end

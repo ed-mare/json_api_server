@@ -93,20 +93,42 @@ module SimpleJsonApi # :nodoc:
       @fields = options[:fields]
     end
 
-    # * <tt>:builder</tt> - Instance of SimpleJsonApi::Builder.
-    # #object, #includes and #fields will be extracted from it.
-    # * <tt>options</tt> - Hash, override values from Builder or set additional options.
-    #   * <tt>:includes</tt> - Instance of SimpleJsonApi::Include or nil. Sets #includes.
-    #   * <tt>:fields</tt> - Instance of SimpleJsonApi::Fields or nil. Sets #fields.
-    #   * <tt>filter</tt> - Instance of SimpleJsonApi::Filter or nil. Sets #filter.
-    #   * <tt>:paginator</tt> - Instance of SimpleJsonApi::Fields or nil. Sets #paginator.
-    #   * <tt>:as_json_options</tt> - See options at SimpleJsonApi::BaseSerializer#as_json_options.
-    def self.from_builder(builder, **options)
-      opts = options.merge(fields: options[:fields] || builder.sparse_fields,
-                           includes: options[:includes] || builder.includes,
-                           paginator: options[:paginator] || builder.paginator,
-                           filter: options[:filter] || builder.filter)
-      new(builder.query, opts)
+    class << self
+      # 'type' used in #relationship_data.
+      #
+      #   "data": {"type": "articles", "id": 2}
+      attr_reader :type
+
+      # 'type' used in #relationship_data.
+      def set_type(type)
+        @type = type
+      end
+
+      # * <tt>:builder</tt> - Instance of SimpleJsonApi::Builder.
+      # #object, #includes and #fields will be extracted from it.
+      # * <tt>options</tt> - Hash, override values from Builder or set additional options.
+      #   * <tt>:includes</tt> - Instance of SimpleJsonApi::Include or nil. Sets #includes.
+      #   * <tt>:fields</tt> - Instance of SimpleJsonApi::Fields or nil. Sets #fields.
+      #   * <tt>filter</tt> - Instance of SimpleJsonApi::Filter or nil. Sets #filter.
+      #   * <tt>:paginator</tt> - Instance of SimpleJsonApi::Fields or nil. Sets #paginator.
+      #   * <tt>:as_json_options</tt> - See options at SimpleJsonApi::BaseSerializer#as_json_options.
+      def from_builder(builder, **options)
+        opts = options.merge(fields: options[:fields] || builder.sparse_fields,
+                             includes: options[:includes] || builder.includes,
+                             paginator: options[:paginator] || builder.paginator,
+                             filter: options[:filter] || builder.filter)
+        new(builder.query, opts)
+      end
+    end
+
+    # Content when #as_json_options {include: [:relationship_data]} is specified. Defaults
+    # to { 'type' => <resource_type>, 'id' => <@object.id> }. resource_type can be
+    # set with class method #resource_type, otherwise it will be guessed from
+    # serializer class name.
+    def relationship_data
+      type = self.class.type || type_from_name
+      id = @object.try(:id) || @object.try(:[], :id)
+      { 'type' => type, 'id' => id }
     end
 
     protected
@@ -182,10 +204,22 @@ module SimpleJsonApi # :nodoc:
       @includes.respond_to?(:include?) && @includes.include?(relationship.to_s)
     end
 
+    # Returns true if there are requested inclusions. False otherwise.
+    def inclusions?
+      @includes.respond_to?(:any?) && @includes.any?
+    end
+
     # Returns the fields for a specific type. i.e., fields_for('articles') or nil
     # if type doesn't exist or fields is nil.
     def fields_for(type)
       @fields.respond_to?(:key) ? @fields[type.to_s] : nil
+    end
+
+    def type_from_name
+      class_name = self.class.name.split('::').last
+      class_name.downcase!
+      class_name.gsub!(/serializer/, '')
+      class_name.pluralize
     end
   end
 end

@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe SimpleJsonApi::RelationshipsBuilder do
   class PeopleSerializer < SimpleJsonApi::ResourceSerializer
+
     def links
       { self: File.join(base_url, "/people/#{@object[:id]}") }
     end
@@ -19,6 +20,8 @@ describe SimpleJsonApi::RelationshipsBuilder do
   end
 
   class ComSerializer < SimpleJsonApi::ResourceSerializer
+    set_type 'comments'
+
     def links
       { self: File.join(base_url, "/comments/#{@object[:id]}") }
     end
@@ -158,29 +161,7 @@ describe SimpleJsonApi::RelationshipsBuilder do
     it 'allows relationship type to be specified (defaults to relationship name)' do
       author_serializer.as_json_options = { include: [:data] }
       r = SimpleJsonApi::RelationshipsBuilder.new
-                                             .relate('comment.author', author_serializer, type: 'author')
-                                             .relationships
-
-      expect(r).to eq(
-        'author' => {
-          'data' => {
-            'type' => 'people',
-            'id' => 6,
-            'attributes' => { 'first_name' => 'John', 'last_name' => 'Steinbeck' }
-          }
-        }
-      )
-    end
-  end
-
-  describe '#relate_if' do
-    it 'merges relationships if proc returns true and skips if false' do
-      author_serializer.as_json_options = { include: [:data] }
-      comment1_serializer.as_json_options = { include: [:data] }
-
-      r = SimpleJsonApi::RelationshipsBuilder.new
-                                             .relate_if('author', author_serializer, -> { 1 == 1 })
-                                             .relate_if('comments', comment1_serializer, -> { 1 == 2 })
+                                             .relate('author', author_serializer)
                                              .relationships
 
       expect(r).to eq(
@@ -250,7 +231,7 @@ describe SimpleJsonApi::RelationshipsBuilder do
 
     it 'allows relationship type to be specified in options' do
       b = SimpleJsonApi::RelationshipsBuilder.new
-                                             .include('comment.author', author_serializer, relate: { include: [:relationship_data] }, type: 'author')
+                                             .include('author', author_serializer, relate: { include: [:relationship_data] })
 
       # type doesn't affect includes
       expect(b.included).to eq(
@@ -261,20 +242,6 @@ describe SimpleJsonApi::RelationshipsBuilder do
 
       # type affects relationships only
       expect(b.relationships).to eq('author' => { 'data' => { 'type' => 'people', 'id' => 6 } })
-    end
-  end
-
-  describe '#include_if' do
-    it 'includes content if proc return true' do
-      r = SimpleJsonApi::RelationshipsBuilder.new
-                                             .include_if('author', author_serializer, -> { 1 == 1 })
-                                             .include_if('comments', comment1_serializer, -> { 1 == 2 })
-                                             .include_if('comments', comment2_serializer, -> { 'not a bool' })
-                                             .included
-
-      expect(r).to eq([
-                        { 'type' => 'people', 'id' => 6, 'attributes' => { 'first_name' => 'John', 'last_name' => 'Steinbeck' } }
-                      ])
     end
   end
 
