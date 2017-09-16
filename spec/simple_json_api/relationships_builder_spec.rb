@@ -2,7 +2,6 @@ require 'spec_helper'
 
 describe SimpleJsonApi::RelationshipsBuilder do
   class PeopleSerializer < SimpleJsonApi::ResourceSerializer
-
     def links
       { self: File.join(base_url, "/people/#{@object[:id]}") }
     end
@@ -20,7 +19,7 @@ describe SimpleJsonApi::RelationshipsBuilder do
   end
 
   class ComSerializer < SimpleJsonApi::ResourceSerializer
-    set_type 'comments'
+    resource_type 'comments'
 
     def links
       { self: File.join(base_url, "/comments/#{@object[:id]}") }

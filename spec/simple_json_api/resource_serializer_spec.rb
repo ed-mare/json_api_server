@@ -4,7 +4,7 @@ require 'ostruct'
 class PersonSerializer < SimpleJsonApi::ResourceSerializer; end
 class EpisodeSerializer < SimpleJsonApi::ResourceSerializer; end
 class GoblinSerializer < SimpleJsonApi::ResourceSerializer
-  set_type 'creatures'
+  resource_type 'creatures'
 end
 
 describe SimpleJsonApi::ResourceSerializer do
@@ -19,12 +19,10 @@ describe SimpleJsonApi::ResourceSerializer do
     SimpleJsonApi::ResourceSerializer.new(object)
   end
 
-  describe '.set_type' do
-
+  describe '.resource_type' do
     it 'sets class attribute :type' do
       expect(GoblinSerializer.type).to eq('creatures')
     end
-
   end
 
   describe '#initialize' do
@@ -62,33 +60,32 @@ describe SimpleJsonApi::ResourceSerializer do
   end
 
   describe '#relationship_data' do
-    let(:episode_serializer) { EpisodeSerializer.new(object)}
-    let(:person_serializer) { PersonSerializer.new(object)}
-    let(:goblin_serializer) { GoblinSerializer.new(object)}
-    let(:nil_object_serializer) { GoblinSerializer.new(nil)}
+    let(:episode_serializer) { EpisodeSerializer.new(object) }
+    let(:person_serializer) { PersonSerializer.new(object) }
+    let(:goblin_serializer) { GoblinSerializer.new(object) }
+    let(:nil_object_serializer) { GoblinSerializer.new(nil) }
 
     it 'is {type: <type>, id: <object.id>} where type is guessed from serializer name' do
       expect(episode_serializer.relationship_data).to eq(
-        {'type' => 'episodes', 'id' => 2}
+        'type' => 'episodes', 'id' => 2
       )
     end
 
     it 'correctly pluralizes type' do
       expect(person_serializer.relationship_data).to eq(
-        {'type' => 'people', 'id' => 2}
+        'type' => 'people', 'id' => 2
       )
     end
 
     it 'uses value from #resource_type as type if set' do
       expect(goblin_serializer.relationship_data).to eq(
-        {'type' => 'creatures', 'id' => 2}
+        'type' => 'creatures', 'id' => 2
       )
     end
 
     it "doesn't raise errors if object doesn't have id" do
       expect { nil_object_serializer.relationship_data }.not_to raise_error
     end
-
   end
 
   describe '.from_builder' do
@@ -119,7 +116,6 @@ describe SimpleJsonApi::ResourceSerializer do
   end
 
   describe '#inclusions? (protected)' do
-
     it 'is true when inclusions are requested' do
       expect(instance_with_options.send(:inclusions?)).to eq(true)
     end
@@ -127,7 +123,6 @@ describe SimpleJsonApi::ResourceSerializer do
     it 'is false when inclusions are not requested' do
       expect(instance_without_options.send(:inclusions?)).to eq(false)
     end
-
   end
 
   describe '#attributes_builder_for (protected)' do
@@ -141,5 +136,4 @@ describe SimpleJsonApi::ResourceSerializer do
       expect(builder.fields).to eq(%w[title body])
     end
   end
-
 end

@@ -7,46 +7,54 @@ module SimpleJsonApi # :nodoc:
   # Example class:
   #
   #   class CommentSerializer < SimpleJsonApi::ResourceSerializer
+  #     resource_type 'comments'
+  #
   #     def links
-  #       {
-  #         self: File.join(base_url, "/comments/#{@object.id}")
-  #       }
+  #       { self: File.join(base_url, "/comments/#{@object.id}") }
   #     end
   #
   #     def data
-  #       {
-  #         type: 'comments',
-  #         id: @object.id,
-  #         attributes: attributes,
-  #         relationships: relationships.relationships
-  #       }
+  #       {}.tap do |h|
+  #         h['type'] = self.class.type
+  #         h['id'] = @object.id
+  #         h['attributes'] = attributes
+  #         h['relationships'] = inclusions.relationships if inclusions?
+  #       end
   #     end
   #
   #     def included
-  #       relationships.included
+  #       inclusions.included if inclusions?
   #     end
   #
   #     protected
   #
   #     def attributes
-  #       attributes_builder_for('comments')
-  #         .add('title', @object.title)
-  #         .add('comment', @object.comment)
+  #       attributes_builder
+  #         .add_multi(@object, 'title', 'comment')
   #         .add('created_at', @object.created_at.try(:iso8601, 9))
   #         .add('updated_at', @object.updated_at.try(:iso8601, 9))
   #         .attributes
   #     end
   #
-  #     def relationships
-  #        @relationships ||= begin
-  #           if relationship?('comment.author')
-  #             rb.relate('comment.author', user_serializer(@object.author), type: 'author')
-  #           elsif relationship?('comment.author.include')
-  #            rb.include('comment.author.include', user_serializer(@object.author),
-  #                 type: 'author', relate: {include: [:links]})
-  #           end
-  #          rb
-  #        end
+  #     def inclusions
+  #       @inclusions ||= begin
+  #         relationships_builder.relate('author', user_serializer(@object.author)) if
+  #           relationship?('comment.author')
+  #         if relationship?('comment.author.links')
+  #           relationships_builder.include('author', user_serializer(@object.author),
+  #                                         relate: { include: [:links] })
+  #         end
+  #         relationships_builder
+  #       end
+  #     end
+  #
+  #     def user_serializer(user, as_json_options = { include: [:data] })
+  #       ::UserSerializer.new(
+  #         user,
+  #         includes: includes,
+  #         fields: fields,
+  #         as_json_options: as_json_options
+  #       )
   #     end
   #   end
   #
@@ -97,10 +105,12 @@ module SimpleJsonApi # :nodoc:
       # 'type' used in #relationship_data.
       #
       #   "data": {"type": "articles", "id": 2}
-      attr_reader :type
+      def type
+        @type || type_from_class_name
+      end
 
       # 'type' used in #relationship_data.
-      def set_type(type)
+      def resource_type(type)
         @type = type
       end
 
@@ -119,6 +129,18 @@ module SimpleJsonApi # :nodoc:
                              filter: options[:filter] || builder.filter)
         new(builder.query, opts)
       end
+
+      protected
+
+      # Get type from class name.
+      def type_from_class_name
+        @type_from_class_name ||= begin
+          class_name = name.split('::').last
+          class_name.downcase!
+          class_name.gsub!(/serializer/, '')
+          class_name.pluralize
+        end
+      end
     end
 
     # Content when #as_json_options {include: [:relationship_data]} is specified. Defaults
@@ -126,9 +148,8 @@ module SimpleJsonApi # :nodoc:
     # set with class method #resource_type, otherwise it will be guessed from
     # serializer class name.
     def relationship_data
-      type = self.class.type || type_from_name
       id = @object.try(:id) || @object.try(:[], :id)
-      { 'type' => type, 'id' => id }
+      { 'type' => self.class.type, 'id' => id }
     end
 
     protected
@@ -152,6 +173,11 @@ module SimpleJsonApi # :nodoc:
       SimpleJsonApi::AttributesBuilder.new(fields_for(type))
     end
 
+    # Instance of SimpleJsonApi::AttributesBuilder for the class's resource 'type'.
+    def attributes_builder
+      @attributes_builder ||= attributes_builder_for(self.class.type)
+    end
+
     # Instance of SimpleJsonApi::MetaBuilder.
     #
     # i.e.,
@@ -167,7 +193,7 @@ module SimpleJsonApi # :nodoc:
       @meta_builder ||= SimpleJsonApi::MetaBuilder.new
     end
 
-    # Returns a new instance of SimpleJsonApi::RelationshipsBuilder.
+    # Instance of SimpleJsonApi::RelationshipsBuilder.
     #
     # i.e.,
     #
@@ -175,11 +201,6 @@ module SimpleJsonApi # :nodoc:
     #     .relate(...)
     #     .relate_if(...)
     #     .relate_each(...)
-    #  ...
-    #  builder
-    #     .include(...)
-    #     .include_if(...)
-    #     .include_each(...)
     #
     #  self.relationships_builder.relationships # get relationships section
     #  self.relationships_builder.included # get included section
@@ -213,13 +234,6 @@ module SimpleJsonApi # :nodoc:
     # if type doesn't exist or fields is nil.
     def fields_for(type)
       @fields.respond_to?(:key) ? @fields[type.to_s] : nil
-    end
-
-    def type_from_name
-      class_name = self.class.name.split('::').last
-      class_name.downcase!
-      class_name.gsub!(/serializer/, '')
-      class_name.pluralize
     end
   end
 end

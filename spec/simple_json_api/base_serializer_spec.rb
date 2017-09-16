@@ -40,7 +40,7 @@ describe SimpleJsonApi::BaseSerializer do
     end
 
     def relationship_data
-      [{type: 'articles', id: '1'}]
+      [{ type: 'articles', id: '1' }]
     end
 
     def included

@@ -96,7 +96,7 @@ module SimpleJsonApi # :nodoc:
     #   .add_multi(@object, 'name', 'email', 'logins')
     #   .attributes
     def add_multi(object, *attrs)
-      attrs.each {|attr| add(attr, object.send(attr)) }
+      attrs.each { |attr| add(attr, object.send(attr)) }
       self
     end
 

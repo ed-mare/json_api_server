@@ -16,7 +16,7 @@ module SimpleJsonApi # :nodoc:
   #    "last": "http://example.com/articles?page[number]=13&page[limit]=5"
   #  }
   class Paginator
-    @attrs = %w(first last self next prev)
+    @attrs = %w[first last self next prev]
 
     # Params:
     # - <tt>current_page</tt> (Integer)

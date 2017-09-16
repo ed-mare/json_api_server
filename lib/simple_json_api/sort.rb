@@ -144,7 +144,8 @@ module SimpleJsonApi # :nodoc:
         attr_name = order == :desc ? attr.slice(1..attr.length) : attr
         config = configs.config_for(attr_name)
         if config.nil?
-          raise SimpleJsonApi::BadRequest, "Sort param '#{attr_name}' is not supported."
+          msg = I18n.t('simple_json_api.render_400.sort', param: attr_name)
+          raise SimpleJsonApi::BadRequest, msg
         end
         whitelisted << { (config[:col_name] || config[:attr]) => order }
       end

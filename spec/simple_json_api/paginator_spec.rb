@@ -100,7 +100,7 @@ describe SimpleJsonApi::Paginator do
     it 'returns a hash with first, self, next, prev, last' do
       expect(paginator.as_json).to eq('first' => "#{base_url}?foo=bar&page%5Blimit%5D=#{per_page}&page%5Bnumber%5D=1",
                                       'last' => "#{base_url}?foo=bar&page%5Blimit%5D=#{per_page}&page%5Bnumber%5D=24",
-                                      'self'=> "#{base_url}?foo=bar&page%5Blimit%5D=#{per_page}&page%5Bnumber%5D=3",
+                                      'self' => "#{base_url}?foo=bar&page%5Blimit%5D=#{per_page}&page%5Bnumber%5D=3",
                                       'next' => "#{base_url}?foo=bar&page%5Blimit%5D=#{per_page}&page%5Bnumber%5D=4",
                                       'prev' => "#{base_url}?foo=bar&page%5Blimit%5D=#{per_page}&page%5Bnumber%5D=2")
     end

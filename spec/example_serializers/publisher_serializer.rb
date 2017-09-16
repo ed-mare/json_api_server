@@ -1,5 +1,5 @@
 class PublisherSerializer < SimpleJsonApi::ResourceSerializer
-  set_type 'publishers'
+  resource_type 'publishers'
 
   def links
     { self: File.join(base_url, "/publishers/#{@object.id}") }
@@ -16,7 +16,7 @@ class PublisherSerializer < SimpleJsonApi::ResourceSerializer
   protected
 
   def attributes
-    attributes_builder_for(self.class.type)
+    attributes_builder
       .add('name', @object.name)
       .add('created_at', @object.created_at.try(:iso8601, 9))
       .add('updated_at', @object.updated_at.try(:iso8601, 9))

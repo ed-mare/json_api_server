@@ -5,7 +5,10 @@ en:
         name: 'resource'
     render_400:
       title: 'Bad Request'
-      detail: 'Unknown request keyword.'    
+      detail: 'Unknown request keyword.'
+      inclusion: "Inclusion param '%{param}' is not supported."
+      filter: "Filter param '%{param}' is not supported."
+      sort: "Sort param '%{param}' is not supported."
     render_401:
       title: 'Unauthorized'
       detail: 'Authentication failed.'

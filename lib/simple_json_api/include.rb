@@ -156,7 +156,8 @@ module SimpleJsonApi # :nodoc:
         v.respond_to?(:keys) ? v.keys.first.to_s == inc : v.to_s == inc
       end
       if config.nil?
-        raise SimpleJsonApi::BadRequest, "Inclusion param '#{inclusion}' is not supported."
+        msg = I18n.t('simple_json_api.render_400.inclusion', param: inclusion)
+        raise SimpleJsonApi::BadRequest, msg
       end
       config
     end

@@ -1,13 +1,13 @@
 # Model serailizer for Topic. Inherit from SimpleJsonApi::BaseSerializer.
 class TopicSerializer < SimpleJsonApi::ResourceSerializer
-  set_type 'topics'
+  resource_type 'topics'
 
   def links
     { self: File.join(base_url, "/topics/#{@object.id}") }
   end
 
   def data
-    Hash.new.tap do |h|
+    {}.tap do |h|
       h['type'] = self.class.type
       h['id'] = @object.id
       h['attributes'] = attributes
@@ -22,15 +22,10 @@ class TopicSerializer < SimpleJsonApi::ResourceSerializer
   protected
 
   def attributes
-    attributes_builder_for(self.class.type)
-      .add('book', @object.book)
-      .add('author', @object.author)
-      .add('quote', @object.quote)
-      .add('character', @object.character)
-      .add('location', @object.location)
-      .add('published', @object.published)
-      .add('created_at', @object.created_at.try(:iso8601, 9))
-      .add('updated_at', @object.updated_at.try(:iso8601, 9))
+    attributes_builder
+      .add_multi(@object, 'book', 'author', 'quote', 'character', 'location', 'published')
+      .add('created_at', @object.created_at.try(:iso8601, 0))
+      .add('updated_at', @object.updated_at.try(:iso8601, 0))
       .attributes
   end
 

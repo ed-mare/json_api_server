@@ -6,7 +6,7 @@ describe SimpleJsonApi::AttributesBuilder do
   let(:fields1) { %w[title body author_name] }
   let(:object) do
     OpenStruct.new(title: 'what', body: 'ho', author_name: 'John',
-    created_at: Time.now, updated_at: Time.now)
+                   created_at: Time.now, updated_at: Time.now)
   end
 
   describe '#fields' do
@@ -86,8 +86,8 @@ describe SimpleJsonApi::AttributesBuilder do
 
     it 'adds values in the fields array' do
       attrs = SimpleJsonApi::AttributesBuilder.new(fields1)
-                .add_multi(object, :title, :body, :author_name, :created_at)
-                .attributes
+                                              .add_multi(object, :title, :body, :author_name, :created_at)
+                                              .attributes
 
       expect(attrs).to eq('title' => 'what',
                           'body' => 'ho',
@@ -96,12 +96,12 @@ describe SimpleJsonApi::AttributesBuilder do
 
     it 'takes symbols or strings for attributes' do
       attrs = SimpleJsonApi::AttributesBuilder.new(fields1)
-                .add_multi(object, 'title', :body, 'author_name', :created_at)
-                .attributes
+                                              .add_multi(object, 'title', :body, 'author_name', :created_at)
+                                              .attributes
 
       expect(attrs).to eq('title' => 'what',
-                                    'body' => 'ho',
-                                    'author_name' => 'John')
+                          'body' => 'ho',
+                          'author_name' => 'John')
     end
   end
 

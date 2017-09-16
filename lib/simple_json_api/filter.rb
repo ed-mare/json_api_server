@@ -246,7 +246,8 @@ module SimpleJsonApi # :nodoc:
         attr == (a.respond_to?(:keys) ? a.keys.first : a).to_s
       end
       if config.nil?
-        raise SimpleJsonApi::BadRequest, "Filter param '#{attr}' is not supported."
+        msg = I18n.t('simple_json_api.render_400.filter', param: attr)
+        raise SimpleJsonApi::BadRequest, msg
       end
       FilterConfig.new(config)
     end

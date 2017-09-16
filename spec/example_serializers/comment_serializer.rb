@@ -1,12 +1,12 @@
 class CommentSerializer < SimpleJsonApi::ResourceSerializer
-  set_type 'comments'
+  resource_type 'comments'
 
   def links
     { self: File.join(base_url, "/comments/#{@object.id}") }
   end
 
   def data
-    Hash.new.tap do |h|
+    {}.tap do |h|
       h['type'] = self.class.type
       h['id'] = @object.id
       h['attributes'] = attributes
@@ -21,7 +21,7 @@ class CommentSerializer < SimpleJsonApi::ResourceSerializer
   protected
 
   def attributes
-    attributes_builder_for(self.class.type)
+    attributes_builder
       .add('title', @object.title)
       .add('comment', @object.comment)
       .add('created_at', @object.created_at.try(:iso8601, 9))
@@ -33,8 +33,10 @@ class CommentSerializer < SimpleJsonApi::ResourceSerializer
     @inclusions ||= begin
       relationships_builder.relate('author', user_serializer(@object.author)) if
         relationship?('comment.author')
-      relationships_builder.include('author', user_serializer(@object.author),
-        relate: { include: [:links] }) if relationship?('comment.author.links')
+      if relationship?('comment.author.links')
+        relationships_builder.include('author', user_serializer(@object.author),
+                                      relate: { include: [:links] })
+      end
       relationships_builder
     end
   end
