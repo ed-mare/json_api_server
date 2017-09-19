@@ -2,9 +2,8 @@
 module SimpleJsonApi # :nodoc:
   # ==== Description
   #
-  # Attributes and methods intended for a resource collection, i.e, topics.
-  # Inherits from SimpleJsonApi::ResourceSerializer. See attributes and methods
-  # in this class.
+  # Serializer for a collection/array of resources. Inherits from
+  # SimpleJsonApi::ResourceSerializer. 
   #
   # ==== Example
   #

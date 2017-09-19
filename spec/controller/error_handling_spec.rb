@@ -240,14 +240,14 @@ RSpec.describe SimpleJsonApi::Controller::ErrorHandling, type: :controller do
       expect(response).to have_http_status(400)
 
       # {
-      #   ":jsonapi": {
+      #   "jsonapi": {
       #     ":version": "1.0"
       #   },
-      #   ":errors": [
+      #   "errors": [
       #     {
-      #       ":status": 400,
-      #       ":title": "Bad Request",
-      #       ":detail": "Filter param foo is not supported."
+      #       "status": 400,
+      #       "title": "Bad Request",
+      #       "detail": "Filter param foo is not supported."
       #     }
       #   ]
       # }
@@ -256,6 +256,25 @@ RSpec.describe SimpleJsonApi::Controller::ErrorHandling, type: :controller do
         status: 400,
         title: 'Bad Request',
         detail: 'Filter param foo is not supported.'
+      ).to_json
+
+      expect(response.body).to be_same_json_as(expected_body)
+    end
+  end
+
+  describe 'rescue_from non-SimpleJsonApi::BadRequest' do
+    controller do
+      before_action { |_c| raise ActionController::BadRequest, 'This message should not be returned by api.' }
+      def index; end
+    end
+
+    it 'renders with render_400 and canned error message' do
+      get :index
+      expect(response).to have_http_status(400)
+      expected_body = SimpleJsonApi.errors(
+        status: 400,
+        title: 'Bad Request',
+        detail: "You've made an invalid request."
       ).to_json
 
       expect(response.body).to be_same_json_as(expected_body)

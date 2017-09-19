@@ -1,4 +1,5 @@
 require 'oj'
+require 'will_paginate'
 require 'logger'
 require 'active_support/core_ext/module/delegation'
 require 'active_support/core_ext/object/blank'
@@ -37,6 +38,10 @@ if defined?(Rails)
   require 'simple_json_api/engine'
   require 'simple_json_api/mime_types'
   require 'simple_json_api/controller/error_handling'
+
+  # https://github.com/ohler55/oj/blob/master/pages/Rails.md
+  # gem 'oj_mimic_json' # we need this for Rails 4.1.x
+  Oj.optimize_rails if Oj.respond_to?(:optimize_rails) # rails 5 but also rails 4?
 end
 
 module SimpleJsonApi # :nodoc:

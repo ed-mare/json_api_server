@@ -1,8 +1,7 @@
 module SimpleJsonApi # :nodoc:
   # ==== Description
   #
-  # Attributes and methods intended for a single resource, i.e., topic.
-  # Subclasses SimpleJsonApi::BaseSerializer.
+  # Serializer class for a resource. Subclasses SimpleJsonApi::BaseSerializer.
   #
   # Example class:
   #
@@ -38,8 +37,9 @@ module SimpleJsonApi # :nodoc:
   #
   #     def inclusions
   #       @inclusions ||= begin
-  #         relationships_builder.relate('author', user_serializer(@object.author)) if
-  #           relationship?('comment.author')
+  #         if relationship?('comment.author')
+  #           relationships_builder.relate('author', user_serializer(@object.author))
+  #         end
   #         if relationship?('comment.author.links')
   #           relationships_builder.include('author', user_serializer(@object.author),
   #                                         relate: { include: [:links] })
@@ -60,12 +60,11 @@ module SimpleJsonApi # :nodoc:
   #
   # Create an instance from builder:
   #
-  #   topic = Topic.find(params[:id])
-  #   builder = SimpleJsonApi::Builder.new(request, topic)
-  #     .add_include(include_options)
+  #   builder = SimpleJsonApi::Builder.new(request, Comment.find(params[:id]))
+  #     .add_include(['comment.author', 'comment.author.links'])
   #     .add_fields
   #
-  #   serializer = TopicSerializer.from_builder(builder)
+  #   serializer = CommentSerializer.from_builder(builder)
   #
   class ResourceSerializer < SimpleJsonApi::BaseSerializer
     # Array. Relationships to include. Array of strings. From the
@@ -102,7 +101,7 @@ module SimpleJsonApi # :nodoc:
     end
 
     class << self
-      # 'type' used in #relationship_data.
+      # 'type' used in #relationship_data. i.e.:
       #
       #   "data": {"type": "articles", "id": 2}
       def type
@@ -174,6 +173,13 @@ module SimpleJsonApi # :nodoc:
     end
 
     # Instance of SimpleJsonApi::AttributesBuilder for the class's resource 'type'.
+    #
+    # i.e.,
+    #
+    #   self.attributes_builder  # => attributes_builder_for(self.class.type)
+    #     .add('title', @object.title)
+    #     .add('body', @object.body)
+    #     .add('created_at', @object.created_at)
     def attributes_builder
       @attributes_builder ||= attributes_builder_for(self.class.type)
     end
@@ -197,7 +203,7 @@ module SimpleJsonApi # :nodoc:
     #
     # i.e.,
     #
-    #  builder = relationships_builder
+    #  self.relationships_builder
     #     .relate(...)
     #     .relate_if(...)
     #     .relate_each(...)

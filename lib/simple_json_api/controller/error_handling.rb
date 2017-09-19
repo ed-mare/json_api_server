@@ -42,6 +42,7 @@ module SimpleJsonApi # :nodoc:
         # Overrides of exception handling.
         base.rescue_from StandardError, with: :render_500
         base.rescue_from SimpleJsonApi::BadRequest, with: :render_400
+        base.rescue_from ActionController::BadRequest, with: :render_400
         base.rescue_from ActiveRecord::RecordNotFound, with: :render_404
         base.rescue_from ActiveRecord::RecordNotUnique, with: :render_409
         base.rescue_from ActionController::RoutingError, with: :render_404
@@ -52,16 +53,9 @@ module SimpleJsonApi # :nodoc:
 
       protected
 
-      #--
-      # http://ricostacruz.com/cheatsheets/rails-i18n.html
-      # see http://stackoverflow.com/questions/33391908/how-to-use-i18n-from-controller-in-rails
-      # http://apidock.com/rails/ActionView/Helpers/TranslationHelper/translate
-      # TODO: how to use loc for message overrides.
-      #++
-
       # Render 400 json and status.
       def render_400(exception = nil)
-        message = (exception && exception.message) || I18n.t('simple_json_api.render_400.detail')
+        message = (exception && known?(exception) && exception.message) || I18n.t('simple_json_api.render_400.detail')
         errors = SimpleJsonApi.errors(
           status: 400,
           title: I18n.t('simple_json_api.render_400.title'),
@@ -151,6 +145,10 @@ module SimpleJsonApi # :nodoc:
       end
 
       private
+
+      def known?(exception)
+        !(exception.class.name =~ /SimpleJsonApi::BadRequest/).nil?
+      end
 
       def sanitize(string)
         ActionController::Base.helpers.sanitize(string.to_s)
