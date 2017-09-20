@@ -8,7 +8,7 @@ so depth/complexity can be controlled.
 This library: (1) generates data for sorting, filtering,
 inclusions, and pagination, (2) provides serializers and helper classes for
 building the response with this data, and (3) handles/renders errors in JSON API format.
-Otherwise, you build your APIs as you normally do (i.e, routes, authorization,
+Otherwise, you build your API as you normally do (i.e, routes, authorization,
 caching, etc.).
 
 Use at your own risk. This gem is under development and has not been used
@@ -23,8 +23,7 @@ Supports only ActiveRecord at this time.
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'simple_json_api', git: 'https://github.com/ed-mare/simple_json_api.git'
-# gem 'simple_json_api' # not published yet
+gem 'simple_json_api'
 ```
 
 And then execute:
