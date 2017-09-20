@@ -19,6 +19,9 @@ module SimpleJsonApi # :nodoc:
   #    ":meta": null
   #   }
   #
+  # There is an additional method, #relationship_data, which should be
+  # populated with data for "relationships".
+  #
   # Example class:
   #
   #   class CommentSerializer < SimpleJsonApi::BaseSerializer
@@ -52,7 +55,7 @@ module SimpleJsonApi # :nodoc:
   #     end
   #   end
   #
-  # Sometimes only part of document is needed, for example, when embedding one serializer in another.
+  # Sometimes only part of document is needed, i.e., when embedding one serializer in another.
   # <tt>as_json</tt> takes an optional hash argument which determines which parts of the document to return.
   # These options can also be set in the #as_json_options attribute.
   #
@@ -66,7 +69,7 @@ module SimpleJsonApi # :nodoc:
   #  serializer.as_json(include: [:relationship_data]) # =>
   #  # {
   #  #   data: {
-  #  #      # data element minus the attributes section.
+  #  #      # usually links or object_id + type.
   #  #   }
   #  # }
   #

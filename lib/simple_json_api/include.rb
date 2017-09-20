@@ -15,17 +15,17 @@ module SimpleJsonApi # :nodoc:
   #
   # === Usage:
   #
-  # An inclusion request will look like:
+  # An inclusion request looks like:
   #   /topics?include=author,comment.author,comments
   #
-  # This gets converted to an array of relationships:
+  # It is converted to an array of relationships:
   #   ['author', 'comment.author', 'comments']
   #
   # Includes are whitelisted with a configuration that looks like:
   #  {
-  #    'author': -> { includes(:author) },
-  #    'comments': -> { includes(:comments) },
-  #    'comment.author': nil
+  #    {'author': -> { includes(:author) }},
+  #    {'comments': -> { includes(:comments) }},
+  #    'comment.author'
   #  }
   #
   # In this example, author, comments, and comment.author are allowed includes. If
@@ -33,14 +33,13 @@ module SimpleJsonApi # :nodoc:
   # raised which renders a 400 error.
   #
   # A proc/lambda can be specified to eagerload relationships. Be careful,
-  # to date, there is no way to apply limits to :includes. If eagerloading is
-  # not needed, assign it to nil.
+  # to date, there is no way to apply limits to :includes.
   #
   # ==== Example:
   #  permitted = {
-  #    'author': -> { includes(:author) },
-  #    'comments': -> { includes(:comments) },
-  #    'comment.author': nil
+  #    {'author': -> { includes(:author) }},
+  #    {'comments': -> { includes(:comments) }},
+  #    'comment.author'
   #  }
   #
   #  # create instance
@@ -87,7 +86,7 @@ module SimpleJsonApi # :nodoc:
     #  [
     #    {'author': -> { includes(:author) }},
     #    {'comments': -> { includes(:comments) }},
-    #    {'comments.author': -> {includes(comments: :author)}},
+    #    {'comments.author': -> {includes(comments: :author) }},
     #    'publisher.addresses'
     #  ]
     def initialize(request, model, permitted = [])
@@ -133,11 +132,6 @@ module SimpleJsonApi # :nodoc:
             additions = true
             result = result.merge(query)
           end
-          # query = config[1]
-          # unless query.nil?
-          #   additions = true
-          #   result = result.merge(query)
-          # end
           result
         end
         additions ? frag : nil
@@ -150,7 +144,6 @@ module SimpleJsonApi # :nodoc:
 
     # Returns config. Raises SimpleJsonApi::BadRequest if inclusion is not whitelisted.
     def config_for(inclusion)
-      # config = permitted.find {|k,v| k.to_s == inclusion.to_s}
       config = permitted.find do |v|
         inc = inclusion.to_s
         v.respond_to?(:keys) ? v.keys.first.to_s == inc : v.to_s == inc

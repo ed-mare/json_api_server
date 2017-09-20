@@ -3,20 +3,22 @@ module SimpleJsonApi # :nodoc:
   # ==== Description
   #
   # Serializer for a collection/array of resources. Inherits from
-  # SimpleJsonApi::ResourceSerializer. 
+  # SimpleJsonApi::ResourceSerializer.
   #
   # ==== Example
   #
   # Given a resource serializer for Topic:
   #
   #  class TopicSerializer < SimpleJsonApi::ResourceSerializer
+  #   resource_type 'topics'
+  #
   #    def links
   #      { self: File.join(base_url, "/topics/#{@object.id}") }
   #    end
   #
   #    def data
   #      {
-  #        type: 'topics',
+  #        type: self.class.type,
   #        id: @object.id,
   #        attributes: attributes
   #      }
@@ -25,7 +27,7 @@ module SimpleJsonApi # :nodoc:
   #    protected
   #
   #    def attributes
-  #      attributes_builder_for('topics')
+  #      attributes_builder
   #        .add('book', @object.book)
   #        .add('author', @object.author)
   #        .add('quote', @object.quote)

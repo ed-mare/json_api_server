@@ -101,7 +101,7 @@ module SimpleJsonApi # :nodoc:
     end
 
     class << self
-      # 'type' used in #relationship_data. i.e.:
+      # 'type' used in #relationship_data and #data. i.e.:
       #
       #   "data": {"type": "articles", "id": 2}
       def type

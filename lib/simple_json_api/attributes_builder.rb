@@ -15,7 +15,7 @@ module SimpleJsonApi # :nodoc:
   # converts to:
   #   {'articles' => ['title', 'body', 'phone'], 'people' => ['name']}
   #
-  # When <tt>fields</tt> is an array, only fields in the array should be added:
+  # When <tt>fields</tt> is an array, only fields in the array are added:
   #
   #  AttributesBuilder.new(['title', 'body', 'phone'])
   #    .add('title', @record.title)
@@ -42,8 +42,7 @@ module SimpleJsonApi # :nodoc:
   # When <tt>fields</tt> is nil, all attributes are added.
   #
   #   AttributesBuilder.new
-  #    .add('title', @record.title)
-  #    .add('body',  @record.body)
+  #    .add_multi(@record, 'title', 'body')
   #    .add_if('phone', @record.phone, -> { admin? })  # conditionally adding
   #    .add('isbn', @record.isbn)
   #    .attributes

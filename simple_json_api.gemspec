@@ -36,8 +36,8 @@ Gem::Specification.new do |spec|
                         '--exclude', 'Gemfile', '--exclude', 'Gemfile.lock', '--exclude', 'Rakefile']
 
   spec.add_dependency 'oj', '~> 3.0'
-  spec.add_dependency 'railties', '>= 4.1'
-  spec.add_dependency 'activesupport', '>= 4.1'
+  spec.add_dependency 'railties', '>= 5.0'
+  spec.add_dependency 'activesupport', '>= 5.0'
   spec.add_dependency 'will_paginate', '~> 3.1.0' # for Rails 3+, Sinatra, and Merb
 
   spec.add_development_dependency 'bundler', '>= 1.13'
