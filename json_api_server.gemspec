@@ -11,7 +11,8 @@ Gem::Specification.new do |spec|
 
   spec.summary       = 'Implements JSON API 1.0 - data, errors, meta, pagination, sort, ' \
                         'filters, sparse fieldsets and inclusion of related resources.'
-  spec.description   = 'For building JSON APIs.'
+  spec.description   = 'Implements JSON API 1.0 - data, errors, meta, pagination, sort, ' \
+                        'filters, sparse fieldsets and inclusion of related resources.'
   spec.homepage      = 'https://github.com/ed-mare/json_api_server'
   spec.license       = 'MIT'
 
