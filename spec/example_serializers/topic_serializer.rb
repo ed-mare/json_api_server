@@ -1,5 +1,5 @@
-# Model serailizer for Topic. Inherit from SimpleJsonApi::BaseSerializer.
-class TopicSerializer < SimpleJsonApi::ResourceSerializer
+# Model serailizer for Topic. Inherit from JsonApiServer::BaseSerializer.
+class TopicSerializer < JsonApiServer::ResourceSerializer
   resource_type 'topics'
 
   def links

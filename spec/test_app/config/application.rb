@@ -3,7 +3,7 @@ require_relative 'boot'
 require 'rails/all'
 
 Bundler.require(*Rails.groups)
-require 'simple_json_api'
+require 'json_api_server'
 
 module TestApp
   class Application < Rails::Application

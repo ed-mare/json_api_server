@@ -1,4 +1,4 @@
-class UserSerializer < SimpleJsonApi::ResourceSerializer
+class UserSerializer < JsonApiServer::ResourceSerializer
   resource_type 'users'
 
   def links

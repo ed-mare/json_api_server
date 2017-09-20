@@ -1,8 +1,8 @@
-# Example of overriding variables in SimpleJsonApi.
+# Example of overriding variables in JsonApiServer.
 
 en:
   hello: "Hello world"
-  simple_json_api:
+  json_api_server:
     controller:
       locales:
         name: 'sandwich'

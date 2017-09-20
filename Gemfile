@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-# Specify your gem's dependencies in simple_json_api.gemspec
+# Specify your gem's dependencies in json_api_server.gemspec
 gemspec
 
 #  For pagination in test app.

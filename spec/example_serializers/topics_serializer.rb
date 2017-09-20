@@ -1,6 +1,6 @@
 # Model collection serializer. Includes pagination links and meta info about pagination
 # and filter params.
-class TopicsSerializer < SimpleJsonApi::ResourcesSerializer
+class TopicsSerializer < JsonApiServer::ResourcesSerializer
   serializer TopicSerializer
 
   def meta

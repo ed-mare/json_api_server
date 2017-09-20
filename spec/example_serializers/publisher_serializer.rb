@@ -1,4 +1,4 @@
-class PublisherSerializer < SimpleJsonApi::ResourceSerializer
+class PublisherSerializer < JsonApiServer::ResourceSerializer
   resource_type 'publishers'
 
   def links

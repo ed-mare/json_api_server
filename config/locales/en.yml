@@ -1,5 +1,5 @@
 en:
-  simple_json_api:
+  json_api_server:
     variables:
       defaults:
         name: 'resource'

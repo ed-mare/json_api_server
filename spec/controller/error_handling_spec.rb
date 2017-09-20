@@ -1,13 +1,13 @@
 require 'rails_helper'
 
 class ApplicationController < ActionController::Base
-  include SimpleJsonApi::Controller::ErrorHandling
+  include JsonApiServer::Controller::ErrorHandling
 end
 
 # For testing custom locales variables.
 class LocalesController < ApplicationController; end
 
-RSpec.describe SimpleJsonApi::Controller::ErrorHandling, type: :controller do
+RSpec.describe JsonApiServer::Controller::ErrorHandling, type: :controller do
   describe 'rescue_from StandardError' do
     controller do
       def index
@@ -32,7 +32,7 @@ RSpec.describe SimpleJsonApi::Controller::ErrorHandling, type: :controller do
       #   ]
       # }
 
-      expected_body = SimpleJsonApi.errors(
+      expected_body = JsonApiServer.errors(
         status: 500,
         title: 'Internal Server Error',
         detail: 'The server encountered an unexpected error.'
@@ -66,7 +66,7 @@ RSpec.describe SimpleJsonApi::Controller::ErrorHandling, type: :controller do
       #   ]
       # }
 
-      expected_body = SimpleJsonApi.errors(
+      expected_body = JsonApiServer.errors(
         status: 404,
         title: 'Not Found',
         detail: 'This resource does not exist.'
@@ -100,7 +100,7 @@ RSpec.describe SimpleJsonApi::Controller::ErrorHandling, type: :controller do
       #   ]
       # }
 
-      expected_body = SimpleJsonApi.errors(
+      expected_body = JsonApiServer.errors(
         status: 409,
         title: 'Conflict',
         detail: 'This resource already exists.'
@@ -133,7 +133,7 @@ RSpec.describe SimpleJsonApi::Controller::ErrorHandling, type: :controller do
       #   ]
       # }
 
-      expected_body = SimpleJsonApi.errors(
+      expected_body = JsonApiServer.errors(
         status: 404,
         title: 'Not Found',
         detail: 'This resource does not exist.'
@@ -166,7 +166,7 @@ RSpec.describe SimpleJsonApi::Controller::ErrorHandling, type: :controller do
       #   ]
       # }
 
-      expected_body = SimpleJsonApi.errors(
+      expected_body = JsonApiServer.errors(
         status: 404,
         title: 'Not Found',
         detail: 'This resource does not exist.'
@@ -199,7 +199,7 @@ RSpec.describe SimpleJsonApi::Controller::ErrorHandling, type: :controller do
       #   ]
       # }
 
-      expected_body = SimpleJsonApi.errors(
+      expected_body = JsonApiServer.errors(
         status: 406,
         title: 'Unknown Format',
         detail: 'Format html is not supported for this endpoint.'
@@ -219,7 +219,7 @@ RSpec.describe SimpleJsonApi::Controller::ErrorHandling, type: :controller do
       get :index, format: 'html'
       expect(response).to have_http_status(404)
 
-      expected_body = SimpleJsonApi.errors(
+      expected_body = JsonApiServer.errors(
         status: 404,
         title: 'Not Found',
         detail: 'This resource does not exist.'
@@ -229,9 +229,9 @@ RSpec.describe SimpleJsonApi::Controller::ErrorHandling, type: :controller do
     end
   end
 
-  describe 'rescue_from SimpleJsonApi::BadRequest' do
+  describe 'rescue_from JsonApiServer::BadRequest' do
     controller do
-      before_action { |_c| raise SimpleJsonApi::BadRequest, 'Filter param foo is not supported.' }
+      before_action { |_c| raise JsonApiServer::BadRequest, 'Filter param foo is not supported.' }
       def index; end
     end
 
@@ -252,7 +252,7 @@ RSpec.describe SimpleJsonApi::Controller::ErrorHandling, type: :controller do
       #   ]
       # }
 
-      expected_body = SimpleJsonApi.errors(
+      expected_body = JsonApiServer.errors(
         status: 400,
         title: 'Bad Request',
         detail: 'Filter param foo is not supported.'
@@ -262,7 +262,7 @@ RSpec.describe SimpleJsonApi::Controller::ErrorHandling, type: :controller do
     end
   end
 
-  describe 'rescue_from non-SimpleJsonApi::BadRequest' do
+  describe 'rescue_from non-JsonApiServer::BadRequest' do
     controller do
       before_action { |_c| raise ActionController::BadRequest, 'This message should not be returned by api.' }
       def index; end
@@ -271,7 +271,7 @@ RSpec.describe SimpleJsonApi::Controller::ErrorHandling, type: :controller do
     it 'renders with render_400 and canned error message' do
       get :index
       expect(response).to have_http_status(400)
-      expected_body = SimpleJsonApi.errors(
+      expected_body = JsonApiServer.errors(
         status: 400,
         title: 'Bad Request',
         detail: "You've made an invalid request."
@@ -286,7 +286,7 @@ RSpec.describe SimpleJsonApi::Controller::ErrorHandling, type: :controller do
     #
     # en:
     #   hello: "Hello world"
-    #   simple_json_api:
+    #   json_api_server:
     #     controller:
     #       locales:
     #         name: 'sandwich'
@@ -306,7 +306,7 @@ RSpec.describe SimpleJsonApi::Controller::ErrorHandling, type: :controller do
       # puts response.body
       expect(response).to have_http_status(409)
 
-      expected_body = SimpleJsonApi.errors(
+      expected_body = JsonApiServer.errors(
         status: 409,
         title: 'Conflict',
         detail: 'This sandwich already exists.'
@@ -320,7 +320,7 @@ RSpec.describe SimpleJsonApi::Controller::ErrorHandling, type: :controller do
       # puts response.body
       expect(response).to have_http_status(404)
 
-      expected_body = SimpleJsonApi.errors(
+      expected_body = JsonApiServer.errors(
         status: 404,
         title: 'Not Found',
         detail: 'This sandwich does not exist.'

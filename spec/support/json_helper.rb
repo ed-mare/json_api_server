@@ -8,7 +8,7 @@ module JsonHelper
   end
 
   def default_serializer_options
-    SimpleJsonApi::Configuration::DEFAULT_SERIALIZER_OPTIONS
+    JsonApiServer::Configuration::DEFAULT_SERIALIZER_OPTIONS
   end
 
   protected

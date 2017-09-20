@@ -1,4 +1,4 @@
-# SimpleJsonApi
+# JsonApiServer
 
 This gem provides tools for building JSON APIs per http://jsonapi.org spec (1.0).
 It supports sparse fieldsets, sorting, filtering, pagination, and inclusion of
@@ -15,7 +15,7 @@ Use at your own risk. This gem is under development and has not been used
 in production yet. Known to work with Ruby 2.3.x and Rails 5.x.
 Supports only ActiveRecord at this time.
 
-- **Example app** -> https://github.com/ed-mare/simplejsonapi-example
+- **Example app** -> https://github.com/ed-mare/jsonapiserver-example
 - **Documentation** -> Install gem rdoc for more documentation.
 
 ## Installation
@@ -23,7 +23,7 @@ Supports only ActiveRecord at this time.
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'simple_json_api'
+gem 'json_api_server'
 ```
 
 And then execute:
@@ -32,18 +32,18 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install simple_json_api
+    $ gem install json_api_server
 
 ## Usage
 
 Install gem rdoc for more documentation.
 
-##### 1) Include SimpleJsonApi::Controller::ErrorHandling in your base API controller.
+##### 1) Include JsonApiServer::Controller::ErrorHandling in your base API controller.
 
 ```ruby
 # i.e.,
 class BaseApiController < ApplicationController
-  include SimpleJsonApi::Controller::ErrorHandling
+  include JsonApiServer::Controller::ErrorHandling
 end
 ```
 
@@ -55,7 +55,7 @@ It provides methods which render errors per http://jsonapi.org/format/#errors:
 It rescues from and renders JSON API errors for:
 
 - StandardError (render_500)
-- SimpleJsonApi::BadRequest (render_400)
+- JsonApiServer::BadRequest (render_400)
 - ActionController::BadRequest (render_400)
 - ActiveRecord::RecordNotFound, ActionController::RoutingError (render_404)
 - ActiveRecord::RecordNotUnique (render_409)
@@ -81,7 +81,7 @@ end
 
 # config/locales/en.yml
 en:
-  simple_json_api:
+  json_api_server:
     controller:
       sandwiches:
         name: 'sandwich'
@@ -91,7 +91,7 @@ en:
 # 409 => "This sandwich already exists."
 ```
 
-##### 2) Include SimpleJsonApi::MimeTypes in initializers
+##### 2) Include JsonApiServer::MimeTypes in initializers
 
 Spec: "JSON API requires use of the JSON API media type
 (application/vnd.api+json) for exchanging data."
@@ -100,15 +100,15 @@ To support this mime type:
 
 ```ruby
 # config/initializers/mime_types.rb
-include SimpleJsonApi::MimeTypes
+include JsonApiServer::MimeTypes
 ```
 ##### 3) Configure the gem
 
 Configure the logger, base URL, serialization options and filter builders.
 
 ```ruby
-# config/initializers/simple_json_api.rb
-SimpleJsonApi.configure do |c|
+# config/initializers/json_api_server.rb
+JsonApiServer.configure do |c|
   c.base_url = 'https://www.something.com'
   c.logger = Rails.logger
   c.serializer_options = {
@@ -126,7 +126,7 @@ Optionally, set this Rails config so '`&`' is not escaped in pagination URLs:
 config.active_support.escape_html_entities_in_json = false
 ```
 
-##### 4) Use SimpleJsonApi::Builder to collect data in the controller.
+##### 4) Use JsonApiServer::Builder to collect data in the controller.
 
 This class handles pagination, sorting, filters, inclusion of
 related resources, and sparse fieldsets. It collects the necessary data for the
@@ -134,14 +134,14 @@ serializers.
 
 This class uses the following classes. See each class's rdoc for configuration options.
 
-- SimpleJsonApi::Pagination
-- SimpleJsonApi::Sort
-- SimpleJsonApi::Filter
-- SimpleJsonApi::Include
-- SimpleJsonApi::Fields
+- JsonApiServer::Pagination
+- JsonApiServer::Sort
+- JsonApiServer::Filter
+- JsonApiServer::Include
+- JsonApiServer::Fields
 
 A variety of search capabilities can be configured for model attributes with
-`SimpleJsonApi::Filter` - LIKE queries, ILIKE queries (Postgres), IN queries,
+`JsonApiServer::Filter` - LIKE queries, ILIKE queries (Postgres), IN queries,
 comparison queries, range queries, and queries against Postgres jsonb arrays
 (case sensitive/insensitive). Plus, custom queries and custom filters can be easily
 added.
@@ -182,7 +182,7 @@ class TopicsController < BaseApiController
 
   def index
     # collect the data
-    builder = SimpleJsonApi::Builder.new(request, Topic.current)
+    builder = JsonApiServer::Builder.new(request, Topic.current)
      .add_pagination(pagination_options)
      .add_filter(filter_options)
      .add_include(include_options)
@@ -195,7 +195,7 @@ class TopicsController < BaseApiController
   end
 
   def show
-    builder = SimpleJsonApi::Builder.new(request, Topic.find(params[:id]))
+    builder = JsonApiServer::Builder.new(request, Topic.find(params[:id]))
      .add_include(['publisher', 'comments', 'comments.includes'])
      .add_fields
 
@@ -228,10 +228,10 @@ end
 
 ##### 5) Create Serializers
 
-SimpleJsonApi serializers use the oj gem (https://github.com/ohler55/oj), a fast JSON parser
+JsonApiServer serializers use the oj gem (https://github.com/ohler55/oj), a fast JSON parser
 and Object marshaller. Helper classes
-SimpleJsonApi::AttributesBuilder (sparse fieldsets), SimpleJsonApi::RelationshipsBuilder
-(relationships/included), SimpleJsonApi::Paginator (pagination), and SimpleJsonApi::MetaBuilder (meta)
+JsonApiServer::AttributesBuilder (sparse fieldsets), JsonApiServer::RelationshipsBuilder
+(relationships/included), JsonApiServer::Paginator (pagination), and JsonApiServer::MetaBuilder (meta)
  assist with populating serializers.
 
 Caching is not built into the serializers
@@ -239,7 +239,7 @@ given the variability of JSON API documents. Low level caching is recommended.
 
 ---
 
-All serializers inherit from SimpleJsonApi::BaseSerializer. It creates this structure:
+All serializers inherit from JsonApiServer::BaseSerializer. It creates this structure:
 
 ```ruby
 {
@@ -255,7 +255,7 @@ All serializers inherit from SimpleJsonApi::BaseSerializer. It creates this stru
 
 Sometimes only part of document is needed, i.e., when embedding one serializer in another.
 `as_json` takes an optional hash argument which determines which parts of the document to return.
-These options can also be set in SimpleJsonApi::BaseSerializer#as_json_options.
+These options can also be set in JsonApiServer::BaseSerializer#as_json_options.
 
 ```ruby
 serializer.as_json(include: [:data]) # => { data: {...} }
@@ -269,14 +269,14 @@ serializer.as_json(include: [:links, :data]) # =>
 
 ---
 
-SimpleJsonApi::ResourceSerializer inherits from SimpleJsonApi::BaseSerializer.
+JsonApiServer::ResourceSerializer inherits from JsonApiServer::BaseSerializer.
 It is intended for a single resource (i.e, comment, author). Instantiate with a
-SimpleJsonApi::Builder instance:
+JsonApiServer::Builder instance:
 
 **Example**:
 
 ```ruby
-class TopicSerializer < SimpleJsonApi::ResourceSerializer
+class TopicSerializer < JsonApiServer::ResourceSerializer
   resource_type 'topics'
 
   def links
@@ -343,7 +343,7 @@ class TopicSerializer < SimpleJsonApi::ResourceSerializer
 end
 
 # instantiate in controller...
-builder = SimpleJsonApi::Builder.new(request, Topic.find(params[:id]))
+builder = JsonApiServer::Builder.new(request, Topic.find(params[:id]))
  .add_include(['publisher', 'comments', 'comments.includes'])
  .add_fields
 serializer = TopicSerializer.from_builder(builder)
@@ -351,35 +351,35 @@ serializer = TopicSerializer.from_builder(builder)
 
 Helper methods:
 
-- SimpleJsonApi::ResourceSerializer#attributes_builder -- returns an instance of
-SimpleJsonApi::AttributesBuilder for the 'type' specified in `resource_type`.
-- SimpleJsonApi::ResourceSerializer#meta_builder -- returns an instance of
-SimpleJsonApi::MetaBuilder for building the meta section.
-- SimpleJsonApi::ResourceSerializer#relationships_builder -- returns an instance of
-SimpleJsonApi::RelationshipsBuilder with whitelisted includes.
-- SimpleJsonApi::ResourceSerializer#relationship? -- returns true if relationship is
+- JsonApiServer::ResourceSerializer#attributes_builder -- returns an instance of
+JsonApiServer::AttributesBuilder for the 'type' specified in `resource_type`.
+- JsonApiServer::ResourceSerializer#meta_builder -- returns an instance of
+JsonApiServer::MetaBuilder for building the meta section.
+- JsonApiServer::ResourceSerializer#relationships_builder -- returns an instance of
+JsonApiServer::RelationshipsBuilder with whitelisted includes.
+- JsonApiServer::ResourceSerializer#relationship? -- returns true if relationship is
 requested.
-- SimpleJsonApi::ResourceSerializer#inclusions? -- returns true if inclusions are
+- JsonApiServer::ResourceSerializer#inclusions? -- returns true if inclusions are
 requested.
 ---
 
-SimpleJsonApi::ResourcesSerializer inherits from SimpleJsonApi::ResourceSerializer.
+JsonApiServer::ResourcesSerializer inherits from JsonApiServer::ResourceSerializer.
 It serializes a collection of objects with a specified serializer and merges them.
-It populates the links section with pagination URLs if SimpleJsonApi::Builder#add_pagination
+It populates the links section with pagination URLs if JsonApiServer::Builder#add_pagination
 is called.
 
 **Example**:
 
 ```ruby
-class TopicSerializer < SimpleJsonApi::ResourceSerializer
+class TopicSerializer < JsonApiServer::ResourceSerializer
   ...
 end
 
-class TopicsSerializer < SimpleJsonApi::ResourcesSerializer
+class TopicsSerializer < JsonApiServer::ResourcesSerializer
   serializer TopicSerializer # serializer for objects
 end
 
-builder = SimpleJsonApi::Builder.new(request, Topic.current)
+builder = JsonApiServer::Builder.new(request, Topic.current)
  .add_pagination(pagination_options)
  .add_filter(filter_options)
  .add_include(include_options)
@@ -425,7 +425,7 @@ rdoc --main 'README.md' --exclude 'spec' --exclude 'bin' --exclude 'Gemfile' --e
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/ed-mare/simple_json_api. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at https://github.com/ed-mare/json_api_server. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 ## License
 

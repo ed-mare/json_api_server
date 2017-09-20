@@ -12,12 +12,12 @@ Lint/DuplicatedKey:
 Metrics/BlockLength:
   CountComments: false
   Exclude:
-    - 'simple_json_api.gemspec'
+    - 'json_api_server.gemspec'
     - 'spec/**/*'
 Lint/UselessComparison:
   Exclude:
-    - 'spec/simple_json_api/attributes_builder_spec.rb'
-    - 'spec/simple_json_api/relationships_builder_spec.rb'
+    - 'spec/json_api_server/attributes_builder_spec.rb'
+    - 'spec/json_api_server/relationships_builder_spec.rb'
 Style/Documentation:
   Exclude:
     - 'spec/**/*'
@@ -27,9 +27,9 @@ Metrics/AbcSize:
   Max: 25
 Style/GuardClause:
   Exclude:
-    - 'lib/simple_json_api/filter_builders.rb'
-    - 'lib/simple_json_api/pagination.rb'
-    - 'lib/simple_json_api/relationships_builder.rb'
-    - 'lib/simple_json_api/validation_errors.rb'
+    - 'lib/json_api_server/filter_builders.rb'
+    - 'lib/json_api_server/pagination.rb'
+    - 'lib/json_api_server/relationships_builder.rb'
+    - 'lib/json_api_server/validation_errors.rb'
 Metrics/MethodLength:
   Max: 20

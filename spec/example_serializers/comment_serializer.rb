@@ -1,4 +1,4 @@
-class CommentSerializer < SimpleJsonApi::ResourceSerializer
+class CommentSerializer < JsonApiServer::ResourceSerializer
   resource_type 'comments'
 
   def links

@@ -9,7 +9,7 @@ require_relative '../example_serializers/topics_serializer'
 
 # Base API controller handles errors.
 class BaseController < ApplicationController
-  include SimpleJsonApi::Controller::ErrorHandling
+  include JsonApiServer::Controller::ErrorHandling
 end
 
 # Use fitler, sort and pagination in controller.
@@ -97,7 +97,7 @@ RSpec.describe 'Examples (putting it all together)', type: :controller do
     end
 
     def index
-      builder = SimpleJsonApi::Builder.new(request, Topic.all)
+      builder = JsonApiServer::Builder.new(request, Topic.all)
                                       .add_pagination(pagination_options)
                                       .add_filter(filter_options)
                                       .add_sort(sort_options)
@@ -122,7 +122,7 @@ RSpec.describe 'Examples (putting it all together)', type: :controller do
       include_options = ['publisher', 'comments', 'comments.includes']
 
       topic = Topic.find(params[:id])
-      builder = SimpleJsonApi::Builder.new(request, topic)
+      builder = JsonApiServer::Builder.new(request, topic)
                                       .add_include(include_options)
                                       .add_fields
 

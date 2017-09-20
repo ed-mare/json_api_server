@@ -1,5 +1,5 @@
 class MainController < ApplicationController
-  include SimpleJsonApi::Controller::ErrorHandling
+  include JsonApiServer::Controller::ErrorHandling
 
   def index
     render text: 'I am main.'
