@@ -418,6 +418,8 @@ rdoc --main 'README.md' --exclude 'spec' --exclude 'bin' --exclude 'Gemfile' --e
 
 ## Todo
 
+- Better handling of configs (strings vs symbols). Get rid of HashWithIndifferentAccess if possible (performance penalty).
+- Inheritance around serializers is messy.
 - Test against multiple rubies/rails.
 - Clean up tests, esp. as_json which are brittle.
 - Test against Postgres.
