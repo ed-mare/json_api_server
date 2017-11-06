@@ -421,7 +421,6 @@ rdoc --main 'README.md' --exclude 'spec' --exclude 'bin' --exclude 'Gemfile' --e
 - Better handling of configs (strings vs symbols). Get rid of HashWithIndifferentAccess if possible (performance penalty).
 - Inheritance around serializers is messy.
 - Improve cast class (so its configurable), verify it works with Rails time zones.
-- Test against multiple rubies/rails
 - Clean up tests, esp. as_json which are brittle.
 - Test against Postgres.
 - Support Mongoid.
