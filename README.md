@@ -419,6 +419,7 @@ rdoc --main 'README.md' --exclude 'spec' --exclude 'bin' --exclude 'Gemfile' --e
 ## Todo
 
 - Better handling of configs (strings vs symbols). Get rid of HashWithIndifferentAccess if possible (performance penalty).
+- Use MultiJson.
 - Inheritance around serializers is messy.
 - Improve cast class (so its configurable), verify it works with Rails time zones.
 - Clean up tests, esp. as_json which are brittle.
